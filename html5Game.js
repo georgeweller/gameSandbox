@@ -1,30 +1,55 @@
-var canvas = document.getElementById('gameCanvas');
-if(canvas.getContext){
-	var ctx = canvas.getContext('2d');
-}
-var avatar = new Image();
-avatar.src = "Images/avatar.png";
-avatar.onload = function(){setup();};
+//This is the event utility object. It is used to add event handlers to elements.
+var EventUtil = {
+	addHandler: function(element, type, handler){
+		if(element.addEventListener){
+			element.addEventListener(type, handler, false);
+		}else if(element.attachEvent){
+			element.attachEvent("on"+type, handler);
+		}else{
+			element["on"+type] = handler;
+		}
+	},
+	removeHandler: function(element, type, handler){
+		if(element.removeEventListener){
+			element.removeEventListener(type, handler, false);
+		}else if (element.detachEvent){
+			element.detachEvent("on"+type, handler);
+		}else{
+			element["on"+type] = null;
+		}
+	}
+};
 
+/*SETTING UP THE CANVAS*/
+var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
+if(canvas.getContext){
+	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
+}
+setupCanvas();
+function setupCanvas(){
+	canvas.width = canvasWidth;
+	canvas.height = 400;
+}
+
+//Load an image onto the canvas
+// var avatar = new Image();
+// avatar.src = "Images/avatar.png";
+// avatar.onload = function(){setup();};
+
+/*GAME VARIABLES*/
+////Variables for the game in general:
 var running = false;//Event handlers should check this before they do anything, events shouldn't do anything while the game is paused
 var started = false;
 var timeStep = 1000/60; //Time per frame = 1000ms / 60fps = 16.667ms
-var canvasWidth = 600;
-var canvasVelocity = 0.1;
 var delta = 0;
 var lastFrameTimeMS = 0;
 var numUpdateSteps = 0;
+var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
+////Variables for specific components of the game:
+var canvasWidth = 600;
+var canvasVelocity = 0.1;
 
-function setup(){
-	canvas.width = canvasWidth;
-	canvas.height = 400;
-	ctx.drawImage(avatar,10,10);
-}
-
-var frameID;
-
-start();
-
+/*GAME FUNCTIONS*/
 function start(){ //Used to begin the animation for the first time or to restart after pausing
 	if(!started){ //Don't request multiple frames
 		started = true; //Set started to true
@@ -36,6 +61,12 @@ function start(){ //Used to begin the animation for the first time or to restart
 			frameID = requestAnimationFrame(gameLoop);//requestAnimationFrame passes the current time to gameloop and returns a frameID
 		});
 	}
+}
+
+function stop(){
+	cancelAnimationFrame(frameID);
+	running = false;
+	started = false;
 }
 
 function gameLoop(timeStamp){
@@ -69,8 +100,12 @@ function draw(){
 	canvas.width=canvasWidth;
 }
 
-function stop(){
-	cancelAnimationFrame(frameID);
-	running = false;
-	started = false;
+/*EVENT LISTENERS*/
+var pauseButton = document.getElementById("pauseButton");
+EventUtil.addHandler(pauseButton,"click",stop);
+var startButton = document.getElementById("startButton");
+EventUtil.addHandler(startButton,"click",start);
+
+function test(){
+	alert("Test function called");
 }
