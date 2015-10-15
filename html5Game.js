@@ -47,9 +47,12 @@ setupCanvas();
 function setupCanvas(){
 	canvas.width = canvasWidth;
 	canvas.height = 400;
+	ctx.fillStyle = "#ff0000";
+	ctx.fillRect(40, 150, 15, 50);
 }
 
 /*GAME FUNCTIONS*/
+start();//Start the game as soon as the page loads
 function start(){ //Used to begin the animation for the first time or to restart after pausing
 	if(!started){ //Don't request multiple frames
 		started = true; //Set started to true
@@ -90,14 +93,16 @@ function gameLoop(timeStamp){
 }
 
 function update(t){
-	canvasWidth += canvasVelocity * t;
-	if(canvasWidth>1000){
-		canvasWidth=1000;
-	}
+	// canvasWidth += canvasVelocity * t;
+	// if(canvasWidth>1000){
+	// 	canvasWidth=1000;
+	// }
 }
 
-function draw(){
-	canvas.width=canvasWidth;
+function draw(firstDraw){
+	if(firstDraw===1){
+	}
+	// canvas.width=canvasWidth;
 }
 
 /*EVENT LISTENERS*/
@@ -108,4 +113,8 @@ EventUtil.addHandler(startButton,"click",start);
 
 function test(){
 	alert("Test function called");
+}
+
+function test2(){
+	alert("Second test function called");
 }
