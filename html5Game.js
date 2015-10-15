@@ -20,17 +20,6 @@ var EventUtil = {
 	}
 };
 
-/*SETTING UP THE CANVAS*/
-var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
-if(canvas.getContext){
-	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
-}
-setupCanvas();
-function setupCanvas(){
-	canvas.width = canvasWidth;
-	canvas.height = 400;
-}
-
 //Load an image onto the canvas
 // var avatar = new Image();
 // avatar.src = "Images/avatar.png";
@@ -48,6 +37,17 @@ var frameID; //This will be set to the frameID of the current animation frame, s
 ////Variables for specific components of the game:
 var canvasWidth = 600;
 var canvasVelocity = 0.1;
+
+/*SETTING UP THE CANVAS*/
+var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
+if(canvas.getContext){
+	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
+}
+setupCanvas();
+function setupCanvas(){
+	canvas.width = canvasWidth;
+	canvas.height = 400;
+}
 
 /*GAME FUNCTIONS*/
 function start(){ //Used to begin the animation for the first time or to restart after pausing
