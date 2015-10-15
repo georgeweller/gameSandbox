@@ -12,3 +12,13 @@ function setup(){
 	ctx.drawImage(avatar,10,10);
 }
 
+requestAnimationFrame(updateCanvas);//Whenever requestAnimationFrame is called on a function, requestAnimationFrame passes an argument to 
+//that function which is the timestamp of them the function is called.
+
+function updateCanvas(timeStamp){
+	canvas.width+=1;
+	if(canvas.width<1000){
+		requestAnimationFrame(updateCanvas);//requestAnimationFrame calls stretchCanvas and passes the current time as an argument
+	}
+}
+
