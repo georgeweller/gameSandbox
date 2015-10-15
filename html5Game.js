@@ -18,11 +18,15 @@ requestAnimationFrame(gameLoop);//Whenever requestAnimationFrame is called on a 
 //that function which is the timestamp of them the function is called.
 
 function gameLoop(timeStamp){
-	canvasWidth+=1;
+	update();
 	draw();
 	if(canvasWidth<1000){
 		requestAnimationFrame(gameLoop);//requestAnimationFrame calls stretchCanvas and passes the current time as an argument
 	}
+}
+
+function update(){
+	canvasWidth+=1;
 }
 
 function draw(){
