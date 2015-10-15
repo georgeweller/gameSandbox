@@ -2,12 +2,13 @@ var canvas = document.getElementById('gameCanvas');
 if(canvas.getContext){
 	var ctx = canvas.getContext('2d');
 }
-var avatar = document.images[0];
+var avatar = new Image();
+avatar.src = "Images/avatar.png";
+avatar.onload = function(){setup();};
 
 function setup(){
-	canvas.width=400;
-	canvas.height=300;
-	ctx.drawImage(avatar,100,100);
+	canvas.width = 600;
+	canvas.height = 400;
+	ctx.drawImage(avatar,10,10);
 }
 
-setup();
