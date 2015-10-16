@@ -79,6 +79,7 @@ Paddle.prototype.increaseAUp = function(amount){
 	this.aUp = proposedNewAUp;
 }
 var lPaddle = new Paddle(15,50,60,180);
+var rPaddle = new Paddle(15,50,525,180);
 
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -133,7 +134,7 @@ function gameLoop(timeStamp){
 }
 
 function update(t){
-	moveLPaddle(t);	
+	movePaddles(t);	
 }
 
 function draw(firstDraw){
@@ -142,11 +143,15 @@ function draw(firstDraw){
 	ctx.clearRect(0,0,canvas.width,canvas.height); //Clear the canvas
 	ctx.fillStyle = "#ff0000"; //Set fill colour to red and...
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
+	ctx.fillStyle = "#0000ff"; //Set fill colour to blue and...
+	ctx.fillRect(rPaddle.x,rPaddle.y,rPaddle.w,rPaddle.h); //...draw the right paddle
 }
 
-function moveLPaddle(t){
+function movePaddles(t){
 	lPaddle.setY(lPaddle.y-(lPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
 	lPaddle.increaseVUp(lPaddle.aUp*t);//Increase velocity by (acceleration * time since last frame)
+	rPaddle.setY(rPaddle.y-(rPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
+	rPaddle.increaseVUp(rPaddle.aUp*t);//Increase velocity by (acceleration * time since last frame)
 }
 
 function respondToKey(event){
@@ -157,10 +162,19 @@ function respondToKey(event){
 			}else if(event.keyCode===83){
 				lPaddle.increaseAUp(-0.01)//When s is held down, decreae aUp.
 			}
+			if(event.keyCode===38){
+				rPaddle.increaseAUp(0.01);//When w is held down, increase aUp.
+			}else if(event.keyCode===40){
+				rPaddle.increaseAUp(-0.01)//When s is held down, decreae aUp.
+			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode ===87 || event.keyCode ===83){
 				lPaddle.aUp = 0;//When w or s is released, set lPaddle.aUp to zero
 				lPaddle.vUp = 0;//And set lPaddle.vUp to zero
+			}
+			if(event.keyCode ===38 || event.keyCode ===40){
+				rPaddle.aUp = 0;//When w or s is released, set lPaddle.aUp to zero
+				rPaddle.vUp = 0;//And set lPaddle.vUp to zero
 			}
 		}
 	}	
