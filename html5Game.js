@@ -42,7 +42,7 @@ var lPaddle = {
 	h: 50,
 	x: 40,
 	y: 180,
-	vUp: 0.1
+	vUp: 0
 };
 
 /*SETTING UP THE CANVAS*/
@@ -120,12 +120,32 @@ function moveLPaddle(t){
 	}
 }
 
+function respondToKey(event){
+	if(running){ //If the game is running...
+		if(event.type==="keydown"){
+			if(event.keyCode===87){
+				lPaddle.vUp=1;//When w is held down in canvas, set lPaddle.vUp to a positive number
+			}else if(event.keyCode===83){
+				lPaddle.vUp = -1;//When s is held down in canvas, set lPaddle.vUp to a negative number
+			}
+		}else if(event.type==="keyup"){
+			if(event.keyCode ===87 || event.keyCode ===83){
+				lPaddle.vUp = 0;//When w or s is released in canvas, set lPaddle.vUp to zero
+			}
+		}
+	}	
+}
+
 /*EVENT LISTENERS*/
 var pauseButton = document.getElementById("pauseButton");
 EventUtil.addHandler(pauseButton,"click",stop);
 var startButton = document.getElementById("startButton");
 EventUtil.addHandler(startButton,"click",start);
+//Respond to keydown and keyup events on the window:
+EventUtil.addHandler(window,"keydown",respondToKey);
+EventUtil.addHandler(window,"keyup",respondToKey);
 
+/*TEST FUNCTIONS*/
 function test(){
 	alert("Test function called");
 }
