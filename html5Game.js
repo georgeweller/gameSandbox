@@ -53,13 +53,46 @@ Paddle.prototype.setY = function(proposedNewY){
 var lPaddle = new Paddle(15,50,60,150);
 var rPaddle = new Paddle(15,50,525,150);
 //Balls:
-function Ball(width,xPos,yPos){
+function Ball(width,xPos,yPos,vLeft,vUp){
 	this.w = width;
 	this.x = xPos;
 	this.y = yPos;
+	this.vLeft = vLeft;
+	this.vUp = vUp;
+	this.movingSpeed = 0.3;
+}
+Ball.prototype.setVLeft = function(){
+	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
+}
+Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
+	if(proposedNewX<0){
+		proposedNewX = 0;
+		this.vLeft*=-1;
+	}else if(proposedNewX>canvas.width-this.w){
+		proposedNewX = canvas.width - this.w;
+		this.vLeft *= -1;
+	}
+	if(proposedNewY<0){
+		proposedNewY = 0;
+		this.vUp *= -1;
+	}else if(proposedNewY>canvas.height-this.w){
+		proposedNewY = canvas.height-this.w;
+		this.vUp *= -1;
+	}
+	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y && proposedNewY<=lPaddle.y+lPaddle.h){
+		proposedNewX = lPaddle.x+lPaddle.w;
+		this.vLeft*=-1;
+	}
+	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y && proposedNewY<=rPaddle.y+rPaddle.h){
+		proposedNewX = rPaddle.x-this.w;
+		this.vLeft*=-1;
+	}
+	this.x = proposedNewX;
+	this.y = proposedNewY;
 }
 //var balls []; - Could us this if want to have multiball
-var ball = new Ball(15,75,180);
+var ball = new Ball(15,75,180,0,0.1);
+ball.setVLeft();
 //Players:
 function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.pressingUp = false;
@@ -123,6 +156,7 @@ function gameLoop(timeStamp){
 
 function update(t){
 	movePaddles(t);	
+	moveBalls(t);
 }
 
 function draw(firstDraw){
@@ -143,6 +177,10 @@ function draw(firstDraw){
 function movePaddles(t){
 	lPaddle.setY(lPaddle.y-(lPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
 	rPaddle.setY(rPaddle.y-(rPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
+}
+
+function moveBalls(t){
+	ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
 }
 
 function respondToKey(event){
