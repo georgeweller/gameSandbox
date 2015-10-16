@@ -20,11 +20,6 @@ var EventUtil = {
 	}
 };
 
-//Load an image onto the canvas
-// var avatar = new Image();
-// avatar.src = "Images/avatar.png";
-// avatar.onload = function(){setup();};
-
 /*GAME VARIABLES*/
 ////Variables for the game in general:
 var running = false;//Event handlers should check this before they do anything, events shouldn't do anything while the game is paused
@@ -43,9 +38,7 @@ function Paddle(width,height,xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.vUp = 0;
-	this.vMax = 1;
-	this.aUp = 0;
-	this.aMax = 0.1;
+	this.defaultSpeed = 0.4;
 } 
 Paddle.prototype.setY = function(proposedNewY){
 	if(proposedNewY<0){
@@ -56,37 +49,15 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-Paddle.prototype.stopPaddle = function(){
-	this.vUp = 0;
-	this.aUp = 0;
-}
-Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity by amount. The exception is if the paddle isunable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax
-	proposedNewVUp = this.vUp + amount; //Propose new vUp equal to current vUp plus amount
-	if(proposedNewVUp>this.vMax){ //If this is bigger than the maximum positive velocity...
-		proposedNewVUp = this.vMax; //...set the proposed vUp to the maxixum positive velocity
-	}else if(proposedNewVUp<(this.vMax*-1)){ //If this is bigger than the maximum negative velocity...
-		proposedNewVUp = (this.vMax*-1); //...set the proposed vUp to the maximum negative velocity
-	}
-	if((proposedNewVUp>0 && this.y===0)||(proposedNewVUp<0 && this.y>(canvas.height-this.h))){//If the paddle is at the edge of the canvas in the direction it is moving...
-		this.stopPaddle(); //Set the paddle velocity and acceleration to zero
-	}else{
-		this.vUp = proposedNewVUp; //Set the paddle velocity to the proposed velocity
-	}	
-}
-Paddle.prototype.increaseAUp = function(amount){
-	if(this.aUp/amount<0){//If the new acceleration is in a differnt direction to the current acceleration...
-		this.stopPaddle();//...stop the paddle before carrying on.
-	}
-	var proposedNewAUp = this.aUp + amount;
-	if(proposedNewAUp>this.aMax){
-		proposedNewAUp = this.aMax;
-	}else if(proposedNewAUp<(this.aMax*-1)){
-		proposedNewAUp = (this.aMax*-1);
-	}
-	this.aUp = proposedNewAUp;
-}
 var lPaddle = new Paddle(15,50,60,180);
 var rPaddle = new Paddle(15,50,525,180);
+function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
+	this.pressingUp = false;
+	this.pressingDown = false;
+	this.paddle = paddle;
+}
+var playerL = new Player(lPaddle);
+var playerR = new Player(rPaddle);
 
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -156,32 +127,53 @@ function draw(firstDraw){
 
 function movePaddles(t){
 	lPaddle.setY(lPaddle.y-(lPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
-	lPaddle.increaseVUp(lPaddle.aUp*t);//Increase velocity by (acceleration * time since last frame)
 	rPaddle.setY(rPaddle.y-(rPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
-	rPaddle.increaseVUp(rPaddle.aUp*t);//Increase velocity by (acceleration * time since last frame)
 }
 
 function respondToKey(event){
 	if(running){ //If the game is running...
 		if(event.type==="keydown"){
 			if(event.keyCode===87){
-				lPaddle.increaseAUp(0.01);//When w is held down, increase lPaddle.aUp.
-			}else if(event.keyCode===83){
-				lPaddle.increaseAUp(-0.01)//When s is held down, decreae lPaddle.aUp.
+				playerL.pressingUp=true;
+			}
+			if(event.keyCode===83){
+				playerL.pressingDown=true;
 			}
 			if(event.keyCode===38){
-				rPaddle.increaseAUp(0.01);//When up is held down, increase rPaddle.aUp.
-			}else if(event.keyCode===40){
-				rPaddle.increaseAUp(-0.01)//When down is held down, decreae rPaddle.aUp.
+				playerR.pressingUp=true;
+			}
+			if(event.keyCode===40){
+				playerR.pressingDown=true;
 			}
 		}else if(event.type==="keyup"){
-			if((event.keyCode===87 && lPaddle.vUp>0) || (event.keyCode===83 && lPaddle.vUp<0)){
-				lPaddle.stopPaddle();//When w or s is released stop the left paddle
+			if(event.keyCode===87){
+				playerL.pressingUp=false;
 			}
-			if((event.keyCode===38 && rPaddle.vUp>0) || (event.keyCode===40 && rPaddle.vUp<0)){
-				rPaddle.stopPaddle();//When up or down is released, stop the right paddle
+			if(event.keyCode===83){
+				playerL.pressingDown=false;
+			}
+			if(event.keyCode===38){
+				playerR.pressingUp=false;
+			}
+			if(event.keyCode===40){
+				playerR.pressingDown=false;
 			}
 		}
+		function movePaddle(player){
+			if(player.pressingUp){
+				if(player.pressingDown){ //If they are pressing up and down
+					player.paddle.vUp = 0;
+				}else{ //If they are only pressing up
+					player.paddle.vUp = player.paddle.defaultSpeed;
+				}
+			}else if(player.pressingDown){ //If they are only pressing down
+				player.paddle.vUp = -1 * player.paddle.defaultSpeed;
+			}else{ //If they are not pressing up or down
+				player.paddle.vUp = 0;
+			}
+		}
+		movePaddle(playerL);
+		movePaddle(playerR);
 	}	
 }
 
@@ -204,10 +196,8 @@ function test2(){
 }
 
 /*BUG RECORD*/
-/*If you change direction, but you start pressing the new direction before you have released the old one, there is a 
-time delay before the paddle starts to move*/
 
-/**WEAPON/ITEM IDEAS/
+/*WEAPON/ITEM IDEAS*/
 //Speed up own paddle
 //Slow down oponent's paddle
 //Barrier (that breaks when hit)
