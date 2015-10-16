@@ -56,6 +56,10 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
+Paddle.prototype.stopPaddle = function(){
+	this.vUp = 0;
+	this.aUp = 0;
+}
 Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity by amount. The exception is if the paddle isunable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax
 	proposedNewVUp = this.vUp + amount; //Propose new vUp equal to current vUp plus amount
 	if(proposedNewVUp>this.vMax){ //If this is bigger than the maximum positive velocity...
@@ -64,10 +68,10 @@ Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity b
 		proposedNewVUp = (this.vMax*-1); //...set the proposed vUp to the maximum negative velocity
 	}
 	if((proposedNewVUp>0 && this.y===0)||(proposedNewVUp<0 && this.y>(canvas.height-this.h))){//If the paddle is at the edge of the canvas in the direction it is moving...
-		proposedNewVUp = 0; //Set the proposed velocity to zero
-		this.aUp = 0; //And set the actual acceleration to zero
+		this.stopPaddle(); //Set the paddle velocity and acceleration to zero
+	}else{
+		this.vUp = proposedNewVUp; //Set the paddle velocity to the proposed velocity
 	}	
-	this.vUp = proposedNewVUp; //Set the actual velocity to the proposed velocity
 }
 Paddle.prototype.increaseAUp = function(amount){
 	var proposedNewAUp = this.aUp + amount;
@@ -158,23 +162,21 @@ function respondToKey(event){
 	if(running){ //If the game is running...
 		if(event.type==="keydown"){
 			if(event.keyCode===87){
-				lPaddle.increaseAUp(0.01);//When w is held down, increase aUp.
+				lPaddle.increaseAUp(0.01);//When w is held down, increase lPaddle.aUp.
 			}else if(event.keyCode===83){
-				lPaddle.increaseAUp(-0.01)//When s is held down, decreae aUp.
+				lPaddle.increaseAUp(-0.01)//When s is held down, decreae lPaddle.aUp.
 			}
 			if(event.keyCode===38){
-				rPaddle.increaseAUp(0.01);//When w is held down, increase aUp.
+				rPaddle.increaseAUp(0.01);//When up is held down, increase rPaddle.aUp.
 			}else if(event.keyCode===40){
-				rPaddle.increaseAUp(-0.01)//When s is held down, decreae aUp.
+				rPaddle.increaseAUp(-0.01)//When down is held down, decreae rPaddle.aUp.
 			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode ===87 || event.keyCode ===83){
-				lPaddle.aUp = 0;//When w or s is released, set lPaddle.aUp to zero
-				lPaddle.vUp = 0;//And set lPaddle.vUp to zero
+				lPaddle.stopPaddle();//When w or s is released stop the left paddle
 			}
 			if(event.keyCode ===38 || event.keyCode ===40){
-				rPaddle.aUp = 0;//When w or s is released, set lPaddle.aUp to zero
-				rPaddle.vUp = 0;//And set lPaddle.vUp to zero
+				rPaddle.stopPaddle();//When up or down is released, stop the right paddle
 			}
 		}
 	}	
@@ -197,3 +199,8 @@ function test(){
 function test2(){
 	alert("Second test function called");
 }
+
+/*BUG RECORD*/
+/*If you are holding down a direction and press and release a different direction button the paddle stops.*/
+/*If you go into a wall and keep holding that direction for a couple of seconds and then try to 
+go in the other direction, there is a delay before the paddle starts to move.*/
