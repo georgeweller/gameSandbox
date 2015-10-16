@@ -36,7 +36,7 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 ////Variables for specific components of the game:
 var canvasWidth = 600;
-var canvasVelocity = 0.1;
+var canvasHeight = 400;
 function Paddle(width,height,xPos,yPos){
 	this.w = width;
 	this.h = height;
@@ -56,6 +56,19 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
+Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity by amount. The exception is if the paddle isunable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax
+	proposedNewVUp = lPaddle.vUp + amount; //Propose new vUp equal to current vUp plus amount
+	if(proposedNewVUp>lPaddle.vMax){ //If this is bigger than the maximum positive velocity...
+		proposedNewVUp = lPaddle.vMax; //...set the proposed vUp to the maxixum positive velocity
+	}else if(proposedNewVUp<(lPaddle.vMax*-1)){ //If this is bigger than the maximum negative velocity...
+		proposedNewVUp = (lPaddle.vMax*-1); //...set the proposed vUp to the maximum negative velocity
+	}
+	if((proposedNewVUp>0 && lPaddle.y===0)||(proposedNewVUp<0 && lPaddle.y>(canvas.height-lPaddle.h))){//If the paddle is at the edge of the canvas in the direction it is moving...
+		proposedNewVUp = 0; //Set the proposed velocity to zero
+		lPaddle.aUp = 0; //And set the actual acceleration to zero
+	}	
+	lPaddle.vUp = proposedNewVUp; //Set the actual velocity to the proposed velocity
+}
 // 	/*Methods that would be useful: incVUp(amt), incAUp(amt), setY(proposedNewY)*/
 var lPaddle = new Paddle(15,50,60,180);
 
@@ -67,7 +80,7 @@ if(canvas.getContext){
 setupCanvas();
 function setupCanvas(){
 	canvas.width = canvasWidth;
-	canvas.height = 400;
+	canvas.height = canvasHeight;
 }
 
 /*GAME FUNCTIONS*/
@@ -125,19 +138,7 @@ function draw(firstDraw){
 
 function moveLPaddle(t){
 	lPaddle.setY(lPaddle.y-(lPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
-	/*Change the paddle's velocity based on its acceleration and how much time has passed. The exception is if the paddle is
-	unable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax*/
-	proposedNewVUp = lPaddle.vUp + (lPaddle.aUp*t); //Propose new vUp equal to current vUp plus current accel x time passed since last frame
-	if(proposedNewVUp>lPaddle.vMax){ //If this is bigger than the maximum positive velocity...
-		proposedNewVUp = lPaddle.vMax; //...set the proposed vUp to the maxixum positive velocity
-	}else if(proposedNewVUp<(lPaddle.vMax*-1)){ //If this is bigger than the maximum negative velocity...
-		proposedNewVUp = (lPaddle.vMax*-1); //...set the proposed vUp to the maximum negative velocity
-	}
-	if((proposedNewVUp>0 && lPaddle.y===0)||(proposedNewVUp<0 && lPaddle.y>(canvas.height-lPaddle.h))){//If the paddle is at the edge of the canvas in the direction it is moving...
-		proposedNewVUp = 0; //Set the proposed velocity to zero
-		lPaddle.aUp = 0; //And set the actual acceleration to zero
-	}	
-	lPaddle.vUp = proposedNewVUp; //Set the actual velocity to the proposed velocity
+	lPaddle.increaseVUp(lPaddle.aUp*t);//Increase velocity by (acceleration * time since last frame)
 }
 
 function respondToKey(event){
