@@ -42,7 +42,10 @@ var lPaddle = {
 	h: 50,
 	x: 40,
 	y: 180,
-	vUp: 0
+	vUp: 0,
+	vMax: 0.5,
+	aUp: 0,
+	aMax: 0.1
 };
 
 /*SETTING UP THE CANVAS*/
@@ -110,27 +113,46 @@ function draw(firstDraw){
 }
 
 function moveLPaddle(t){
-	var proposedNewPos = lPaddle.y-(lPaddle.vUp * t) //Propose the paddle's y coordinate depending on its velocity and how much time has passed
-	if(proposedNewPos<0){
+	var proposedNewY = lPaddle.y-(lPaddle.vUp * t) //Propose the paddle's y coordinate depending on its velocity and how much time has passed
+	if(proposedNewY<0){
 		lPaddle.y = 0; //Don't let the paddle go out of the top of the canvas...
-	}else if(proposedNewPos>(canvas.height-lPaddle.h)){
+	}else if(proposedNewY>(canvas.height-lPaddle.h)){
 		lPaddle.y = canvas.height-lPaddle.h; //Or the bottom.
 	}else{
-		lPaddle.y = proposedNewPos;
+		lPaddle.y = proposedNewY;
 	}
+	/*Change the paddle's velocity based on its acceleration and how much time has passed. The exception is if the paddle is
+	unable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax*/
+	proposedNewVUp = lPaddle.vUp + (lPaddle.aUp*t); //Propose new vUp equal to current vUp plus current accel x time passed since last frame
+	if(proposedNewVUp>lPaddle.vMax){ //If this is bigger than the maximum positive velocity...
+		proposedNewVUp = lPaddle.vMax; //...set the proposed vUp to the maxixum positive velocity
+	}else if(proposedNewVUp<(lPaddle.vMax*-1)){ //If this is bigger than the maximum negative velocity...
+		proposedNewVUp = (lPaddle.vMax*-1); //...set the proposed vUp to the maximum negative velocity
+	}
+	if((proposedNewVUp>0 && lPaddle.y===0)||(proposedNewVUp<0 && lPaddle.y>(canvas.height-lPaddle.h))){//If the paddle is at the edge of the canvas in the direction it is moving...
+		proposedNewVUp = 0; //Set the proposed velocity to zero
+		lPaddle.aUp = 0; //And set the actual acceleration to zero
+	}	
+	lPaddle.vUp = proposedNewVUp; //Set the actual velocity to the proposed velocity
 }
 
 function respondToKey(event){
 	if(running){ //If the game is running...
 		if(event.type==="keydown"){
 			if(event.keyCode===87){
-				lPaddle.vUp=1;//When w is held down in canvas, set lPaddle.vUp to a positive number
+				lPaddle.aUp+=0.01;//When w is held down, increase aUp...
+				if(lPaddle.aUp>lPaddle.aMax){ //...but don't let it go above max
+					lPaddle.aUp=lPaddle.aMax;
+				}
 			}else if(event.keyCode===83){
-				lPaddle.vUp = -1;//When s is held down in canvas, set lPaddle.vUp to a negative number
+				lPaddle.aUp-=0.01;//When s is held down, decreae aUp...
+				if(lPaddle.aUp<(lPaddle.aMax)*-1){
+					lPaddle.aUp = (lPaddle.aMax*-1);//...but don't let it go below max*-1
+				}//Maybe I should abstract all of this checking out into a .increaseAccel() method on the lPaddle object
 			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode ===87 || event.keyCode ===83){
-				lPaddle.vUp = 0;//When w or s is released in canvas, set lPaddle.vUp to zero
+				lPaddle.aUp = 0;//When w or s is released, set lPaddle.vUp to zero
 			}
 		}
 	}	
