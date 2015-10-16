@@ -43,7 +43,7 @@ function Paddle(width,height,xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.vUp = 0;
-	this.vMax = 0.5;
+	this.vMax = 1;
 	this.aUp = 0;
 	this.aMax = 0.1;
 } 
@@ -74,6 +74,9 @@ Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity b
 	}	
 }
 Paddle.prototype.increaseAUp = function(amount){
+	if(this.aUp/amount<0){//If the new acceleration is in a differnt direction to the current acceleration...
+		this.stopPaddle();//...stop the paddle before carrying on.
+	}
 	var proposedNewAUp = this.aUp + amount;
 	if(proposedNewAUp>this.aMax){
 		proposedNewAUp = this.aMax;
@@ -172,10 +175,10 @@ function respondToKey(event){
 				rPaddle.increaseAUp(-0.01)//When down is held down, decreae rPaddle.aUp.
 			}
 		}else if(event.type==="keyup"){
-			if(event.keyCode ===87 || event.keyCode ===83){
+			if((event.keyCode===87 && lPaddle.vUp>0) || (event.keyCode===83 && lPaddle.vUp<0)){
 				lPaddle.stopPaddle();//When w or s is released stop the left paddle
 			}
-			if(event.keyCode ===38 || event.keyCode ===40){
+			if((event.keyCode===38 && rPaddle.vUp>0) || (event.keyCode===40 && rPaddle.vUp<0)){
 				rPaddle.stopPaddle();//When up or down is released, stop the right paddle
 			}
 		}
@@ -201,6 +204,16 @@ function test2(){
 }
 
 /*BUG RECORD*/
-/*If you are holding down a direction and press and release a different direction button the paddle stops.*/
-/*If you go into a wall and keep holding that direction for a couple of seconds and then try to 
-go in the other direction, there is a delay before the paddle starts to move.*/
+/*If you change direction, but you start pressing the new direction before you have released the old one, there is a 
+time delay before the paddle starts to move*/
+
+/**WEAPON/ITEM IDEAS/
+//Speed up own paddle
+//Slow down oponent's paddle
+//Barrier (that breaks when hit)
+//One way barrier (could be suped up version of barrier)
+//Missile
+//Telekinesis (control ball while it moves through the air)
+//Reverse ball direction
+//Reinforced/larger ball that can break through barriers
+//Larger paddle/ Two paddles (maybe one slightly forward and they mirror each other's movement)
