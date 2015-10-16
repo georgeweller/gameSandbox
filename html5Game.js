@@ -47,9 +47,17 @@ function Paddle(width,height,xPos,yPos){
 	this.aUp = 0;
 	this.aMax = 0.1;
 } 
+Paddle.prototype.setY = function(proposedNewY){
+	if(proposedNewY<0){
+		this.y = 0; //Don't let the paddle go out of the top of the canvas...
+	}else if(proposedNewY>(canvas.height-this.h)){
+		this.y = canvas.height-this.h; //...or the bottom.
+	}else{
+		this.y = proposedNewY;
+	}
+};
 // 	/*Methods that would be useful: incVUp(amt), incAUp(amt), setY(proposedNewY)*/
 var lPaddle = new Paddle(15,50,60,180);
-
 
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -116,14 +124,7 @@ function draw(firstDraw){
 }
 
 function moveLPaddle(t){
-	var proposedNewY = lPaddle.y-(lPaddle.vUp * t) //Propose the paddle's y coordinate depending on its velocity and how much time has passed
-	if(proposedNewY<0){
-		lPaddle.y = 0; //Don't let the paddle go out of the top of the canvas...
-	}else if(proposedNewY>(canvas.height-lPaddle.h)){
-		lPaddle.y = canvas.height-lPaddle.h; //Or the bottom.
-	}else{
-		lPaddle.y = proposedNewY;
-	}
+	lPaddle.setY(lPaddle.y-(lPaddle.vUp * t));//Propose the paddle's y coordinate depending on its velocity and how much time has passed
 	/*Change the paddle's velocity based on its acceleration and how much time has passed. The exception is if the paddle is
 	unable to move then it's velocity and acceleration should be set to zero. Also vUp cannot be greater in magnitude than Vmax*/
 	proposedNewVUp = lPaddle.vUp + (lPaddle.aUp*t); //Propose new vUp equal to current vUp plus current accel x time passed since last frame
