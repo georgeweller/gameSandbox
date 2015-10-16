@@ -40,7 +40,7 @@ var canvasVelocity = 0.1;
 var lPaddle = {
 	w: 15,
 	h: 50,
-	x: 40,
+	x: 60,
 	y: 180,
 	vUp: 0,
 	vMax: 0.5,
@@ -152,7 +152,8 @@ function respondToKey(event){
 			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode ===87 || event.keyCode ===83){
-				lPaddle.aUp = 0;//When w or s is released, set lPaddle.vUp to zero
+				lPaddle.aUp = 0;//When w or s is released, set lPaddle.aUp to zero
+				lPaddle.vUp = 0;//And set lPaddle.vUp to zero
 			}
 		}
 	}	
