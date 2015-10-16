@@ -42,7 +42,7 @@ var lPaddle = {
 	h: 50,
 	x: 40,
 	y: 180,
-	vUp: 0.08
+	vUp: 0.1
 };
 
 /*SETTING UP THE CANVAS*/
@@ -98,19 +98,26 @@ function gameLoop(timeStamp){
 }
 
 function update(t){
-	lPaddle.y -= lPaddle.vUp * t;
-	// canvasWidth += canvasVelocity * t;
-	// if(canvasWidth>1000){
-	// 	canvasWidth=1000;
-	// }
+	moveLPaddle(t);	
 }
 
 function draw(firstDraw){
 	if(firstDraw===1){
 	}
-	ctx.clearRect(0,0,canvas.width,canvas.height);
+	ctx.clearRect(0,0,canvas.width,canvas.height); //Clear the canvas
 	ctx.fillStyle = "#ff0000"; //Set fill colour to red and...
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
+}
+
+function moveLPaddle(t){
+	var proposedNewPos = lPaddle.y-(lPaddle.vUp * t) //Propose the paddle's y coordinate depending on its velocity and how much time has passed
+	if(proposedNewPos<0){
+		lPaddle.y = 0; //Don't let the paddle go out of the top of the canvas...
+	}else if(proposedNewPos>(canvas.height-lPaddle.h)){
+		lPaddle.y = canvas.height-lPaddle.h; //Or the bottom.
+	}else{
+		lPaddle.y = proposedNewPos;
+	}
 }
 
 /*EVENT LISTENERS*/
