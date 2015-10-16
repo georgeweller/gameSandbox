@@ -37,6 +37,13 @@ var frameID; //This will be set to the frameID of the current animation frame, s
 ////Variables for specific components of the game:
 var canvasWidth = 600;
 var canvasVelocity = 0.1;
+var lPaddle = {
+	w: 15,
+	h: 50,
+	x: 40,
+	y: 180,
+	vUp: 0.08
+};
 
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -47,8 +54,6 @@ setupCanvas();
 function setupCanvas(){
 	canvas.width = canvasWidth;
 	canvas.height = 400;
-	ctx.fillStyle = "#ff0000";
-	ctx.fillRect(40, 150, 15, 50);
 }
 
 /*GAME FUNCTIONS*/
@@ -102,7 +107,8 @@ function update(t){
 function draw(firstDraw){
 	if(firstDraw===1){
 	}
-	// canvas.width=canvasWidth;
+	ctx.fillStyle = "#ff0000"; //Set fill colour to red and...
+	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
 }
 
 /*EVENT LISTENERS*/
