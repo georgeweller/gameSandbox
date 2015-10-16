@@ -69,21 +69,15 @@ Paddle.prototype.increaseVUp = function(amount){//Change the paddle's velocity b
 	}	
 	this.vUp = proposedNewVUp; //Set the actual velocity to the proposed velocity
 }
-// Paddle.prototype.increaseAUp = function(amount){
-// 	var proposedNewAUp = this.
-// 	if(event.keyCode===87){
-// 				lPaddle.aUp+=0.01;//When w is held down, increase aUp...
-// 				if(lPaddle.aUp>lPaddle.aMax){ //...but don't let it go above max
-// 					lPaddle.aUp=lPaddle.aMax;
-// 				}
-// 			}else if(event.keyCode===83){
-// 				lPaddle.aUp-=0.01;//When s is held down, decreae aUp...
-// 				if(lPaddle.aUp<(lPaddle.aMax)*-1){
-// 					lPaddle.aUp = (lPaddle.aMax*-1);//...but don't let it go below max*-1
-// 				}//Maybe I should abstract all of this checking out into a .increaseAccel() method on the lPaddle object
-// 			}
-// }
-// 	/*Methods that would be useful: incVUp(amt), incAUp(amt), setY(proposedNewY)*/
+Paddle.prototype.increaseAUp = function(amount){
+	var proposedNewAUp = this.aUp + amount;
+	if(proposedNewAUp>this.aMax){
+		proposedNewAUp = this.aMax;
+	}else if(proposedNewAUp<(this.aMax*-1)){
+		proposedNewAUp = (this.aMax*-1);
+	}
+	this.aUp = proposedNewAUp;
+}
 var lPaddle = new Paddle(15,50,60,180);
 
 /*SETTING UP THE CANVAS*/
@@ -159,15 +153,9 @@ function respondToKey(event){
 	if(running){ //If the game is running...
 		if(event.type==="keydown"){
 			if(event.keyCode===87){
-				lPaddle.aUp+=0.01;//When w is held down, increase aUp...
-				if(lPaddle.aUp>lPaddle.aMax){ //...but don't let it go above max
-					lPaddle.aUp=lPaddle.aMax;
-				}
+				lPaddle.increaseAUp(0.01);//When w is held down, increase aUp.
 			}else if(event.keyCode===83){
-				lPaddle.aUp-=0.01;//When s is held down, decreae aUp...
-				if(lPaddle.aUp<(lPaddle.aMax)*-1){
-					lPaddle.aUp = (lPaddle.aMax*-1);//...but don't let it go below max*-1
-				}//Maybe I should abstract all of this checking out into a .increaseAccel() method on the lPaddle object
+				lPaddle.increaseAUp(-0.01)//When s is held down, decreae aUp.
 			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode ===87 || event.keyCode ===83){
