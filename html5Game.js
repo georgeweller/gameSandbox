@@ -32,6 +32,7 @@ var frameID; //This will be set to the frameID of the current animation frame, s
 ////Variables for specific components of the game:
 var canvasWidth = 600;
 var canvasHeight = 400;
+//Paddles:
 function Paddle(width,height,xPos,yPos){
 	this.w = width;
 	this.h = height;
@@ -49,8 +50,17 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-var lPaddle = new Paddle(15,50,60,180);
-var rPaddle = new Paddle(15,50,525,180);
+var lPaddle = new Paddle(15,50,60,150);
+var rPaddle = new Paddle(15,50,525,150);
+//Balls:
+function Ball(width,xPos,yPos){
+	this.w = width;
+	this.x = xPos;
+	this.y = yPos;
+}
+//var balls []; - Could us this if want to have multiball
+var ball = new Ball(15,75,180);
+//Players:
 function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.pressingUp = false;
 	this.pressingDown = false;
@@ -123,6 +133,11 @@ function draw(firstDraw){
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
 	ctx.fillStyle = "#0000ff"; //Set fill colour to blue and...
 	ctx.fillRect(rPaddle.x,rPaddle.y,rPaddle.w,rPaddle.h); //...draw the right paddle
+	ctx.strokeStyle = "#ff0000"; //Set fill colour to red and...
+	ctx.beginPath();
+	ctx.arc(ball.x+(ball.w/2),ball.y+(ball.w/2),ball.w/2,0,2*Math.PI,false);
+	ctx.fillStyle = "#ff0000";
+	ctx.fill();	
 }
 
 function movePaddles(t){
@@ -207,3 +222,4 @@ function test2(){
 //Reverse ball direction
 //Reinforced/larger ball that can break through barriers
 //Larger paddle/ Two paddles (maybe one slightly forward and they mirror each other's movement)
+//Multiball
