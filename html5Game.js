@@ -37,16 +37,19 @@ var frameID; //This will be set to the frameID of the current animation frame, s
 ////Variables for specific components of the game:
 var canvasWidth = 600;
 var canvasVelocity = 0.1;
-var lPaddle = {
-	w: 15,
-	h: 50,
-	x: 60,
-	y: 180,
-	vUp: 0,
-	vMax: 0.5,
-	aUp: 0,
-	aMax: 0.1
-};
+function Paddle(width,height,xPos,yPos){
+	this.w = width;
+	this.h = height;
+	this.x = xPos;
+	this.y = yPos;
+	this.vUp = 0;
+	this.vMax = 0.5;
+	this.aUp = 0;
+	this.aMax = 0.1;
+} 
+// 	/*Methods that would be useful: incVUp(amt), incAUp(amt), setY(proposedNewY)*/
+var lPaddle = new Paddle(15,50,60,180);
+
 
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
