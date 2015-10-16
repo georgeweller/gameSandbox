@@ -250,6 +250,15 @@ function test2(){
 
 /*BUG RECORD*/
 
+/*TO DO LIST*/
+//Add hit detection to top and bottom of paddles
+//Make the ball change colour when it changes direction
+//Make it so that the ball can be tethered to paddles (so it moves with them until it is fired)
+//Make it so the ball starts of tethered and can then be fired by pressing d or <-
+//Make it so that if the ball hits a side wall the ball is deleted and a new ball is created tethered to a paddle
+//Add score counters
+//Celebrate making a standard implementation of pong!
+
 /*WEAPON/ITEM IDEAS*/
 //Speed up own paddle
 //Slow down oponent's paddle
@@ -261,3 +270,4 @@ function test2(){
 //Reinforced/larger ball that can break through barriers
 //Larger paddle/ Two paddles (maybe one slightly forward and they mirror each other's movement)
 //Multiball
+//Full/partial barrier behind paddle
