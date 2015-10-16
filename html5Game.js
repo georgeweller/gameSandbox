@@ -79,11 +79,11 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		proposedNewY = canvas.height-this.w;
 		this.vUp *= -1;
 	}
-	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y && proposedNewY<=lPaddle.y+lPaddle.h){
+	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y && proposedNewY<=lPaddle.y+lPaddle.h && this.vLeft>0){
 		proposedNewX = lPaddle.x+lPaddle.w;
 		this.vLeft*=-1;
 	}
-	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y && proposedNewY<=rPaddle.y+rPaddle.h){
+	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y && proposedNewY<=rPaddle.y+rPaddle.h && this.vLeft<0){
 		proposedNewX = rPaddle.x-this.w;
 		this.vLeft*=-1;
 	}
