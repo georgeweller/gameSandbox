@@ -98,6 +98,7 @@ function gameLoop(timeStamp){
 }
 
 function update(t){
+	lPaddle.y -= lPaddle.vUp * t;
 	// canvasWidth += canvasVelocity * t;
 	// if(canvasWidth>1000){
 	// 	canvasWidth=1000;
@@ -107,6 +108,7 @@ function update(t){
 function draw(firstDraw){
 	if(firstDraw===1){
 	}
+	ctx.clearRect(0,0,canvas.width,canvas.height);
 	ctx.fillStyle = "#ff0000"; //Set fill colour to red and...
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
 }
