@@ -59,7 +59,8 @@ function Ball(width,xPos,yPos,vLeft,vUp,tether){
 	this.y = yPos;
 	this.vLeft = vLeft;
 	this.vUp = vUp;
-	this.movingSpeed = 0.3;
+	this.movingSpeed = 0.5;
+	this.setVLeft();
 	this.tetheredTo = tether;
 }
 Ball.prototype.setVLeft = function(){
@@ -75,11 +76,13 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		this.vLeft*=-1;
 		playerR.score+=1;
 		document.getElementById('pRScore').innerHTML = playerR.score;
+		ball = new Ball(15,75,180,0,0.1,lPaddle);//This is not a good strategy because it will fill up the memory with balls
 	}else if(proposedNewX>canvas.width-this.w){
 		proposedNewX = canvas.width - this.w; //Don't let the ball leave the right hand side of the canvas
 		this.vLeft *= -1;
 		playerL.score+=1;
 		document.getElementById('pLScore').innerHTML = playerL.score;
+		ball = new Ball(15,75,180,0,0.1,rPaddle);//This is not a good strategy because it will fill up the memory with balls
 	}
 	if(proposedNewY<0){
 		proposedNewY = 0; //Don't let the ball leave the top of the canvas
@@ -137,9 +140,8 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	this.y = proposedNewY;
 }
 //var balls []; - Could use this if want to have multiball
-var ball = new Ball(15,75,180,0,0.1,lPaddle);
-// var ball = new Ball(15,60,180,0,0.1);
-ball.setVLeft();
+var ball = new Ball(15,75,180,0,0.1,rPaddle);
+
 //Players:
 function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
@@ -212,10 +214,9 @@ function draw(firstDraw){
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
 	ctx.fillStyle = "#0000ff"; //Set fill colour to blue and...
 	ctx.fillRect(rPaddle.x,rPaddle.y,rPaddle.w,rPaddle.h); //...draw the right paddle
-	ctx.strokeStyle = "#ff0000"; //Set fill colour to red and...
 	ctx.beginPath();
 	ctx.arc(ball.x+(ball.w/2),ball.y+(ball.w/2),ball.w/2,0,2*Math.PI,false);
-	ctx.fillStyle = "#ff0000";
+	ctx.fillStyle = "#000000";
 	ctx.fill();	
 }
 
@@ -250,6 +251,16 @@ function respondToKey(event){
 			}
 			if(event.keyCode===40){
 				playerR.pressingDown=true;
+			}
+			if(event.keyCode===68){//If player presses d...
+				if(ball.tetheredTo===lPaddle){//...and the ball is tetherd to the left paddle...
+					ball.tetheredTo = null;//...untether the ball
+				}
+			}
+			if(event.keyCode===37){//If player presses left...
+				if(ball.tetheredTo===rPaddle){//...and the ball is tethered to the right paddle...
+					ball.tetheredTo = null;//...untether the ball
+				}
 			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode===87){
@@ -304,14 +315,9 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Add hit detection to top and bottom and back of paddles
 //Make it so that the paddles can affect the direction of the ball depending on their velocity
 //Make the ball change colour when it changes direction
-//Make it so that the ball can be tethered to paddles (so it moves with them until it is fired)
-//Make it so the ball starts of tethered and can then be fired by pressing d or <-
-//Make it so that if the ball hits a side wall the ball is deleted and a new ball is created tethered to a paddle
-//Add score counters
-//Celebrate making a standard implementation of pong!
+//Make the paddles go back to starting positions when the game restarts
 
 /*WEAPON/ITEM IDEAS*/
 //Speed up own paddle
