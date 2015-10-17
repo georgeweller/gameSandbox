@@ -6,6 +6,18 @@ body>img{
 	display: none;
 }
 
+#scoreBoard{
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 3em;
+	font-weight: bold;
+	margin: 0px;
+}
+
+#pLScore{
+	margin-right: 100px;
+}
+
 #gameCanvas{
 	border: 1px solid black;
 	margin-left: auto;

@@ -59,7 +59,7 @@ function Ball(width,xPos,yPos,vLeft,vUp){
 	this.y = yPos;
 	this.vLeft = vLeft;
 	this.vUp = vUp;
-	this.movingSpeed = 0.6;
+	this.movingSpeed = 0.3;
 }
 Ball.prototype.setVLeft = function(){
 	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
