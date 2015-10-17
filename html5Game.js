@@ -59,7 +59,7 @@ function Ball(width,xPos,yPos,vLeft,vUp){
 	this.y = yPos;
 	this.vLeft = vLeft;
 	this.vUp = vUp;
-	this.movingSpeed = 0.3;
+	this.movingSpeed = 0.6;
 }
 Ball.prototype.setVLeft = function(){
 	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
@@ -72,9 +72,13 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		this.vLeft*=-1;
+		playerR.score+=1;
+		document.getElementById('pRScore').innerHTML = playerR.score;
 	}else if(proposedNewX>canvas.width-this.w){
 		proposedNewX = canvas.width - this.w; //Don't let the ball leave the right hand side of the canvas
 		this.vLeft *= -1;
+		playerL.score+=1;
+		document.getElementById('pLScore').innerHTML = playerL.score;
 	}
 	if(proposedNewY<0){
 		proposedNewY = 0; //Don't let the ball leave the top of the canvas
@@ -128,14 +132,6 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 			}
 		}
 	}
-	// if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y-(this.w/2) && proposedNewY<=lPaddle.y+lPaddle.h-(this.w/2) && this.vLeft>0){
-	// 	proposedNewX = lPaddle.x+lPaddle.w;
-	// 	this.vLeft*=-1;
-	// }
-	// if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y-(this.w/2) && proposedNewY<=rPaddle.y+rPaddle.h-(this.w/2) && this.vLeft<0){
-	// 	proposedNewX = rPaddle.x-this.w;
-	// 	this.vLeft*=-1;
-	// }
 	this.x = proposedNewX;
 	this.y = proposedNewY;
 }
@@ -145,6 +141,7 @@ var ball = new Ball(15,75,180,0,0.1);
 ball.setVLeft();
 //Players:
 function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
+	this.score = 0;
 	this.pressingUp = false;
 	this.pressingDown = false;
 	this.paddle = paddle;
