@@ -65,6 +65,10 @@ Ball.prototype.setVLeft = function(){
 	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
 }
 Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
+	var proposedCentreX = proposedNewX+(this.w/2);
+	var proposedCentreY = proposedNewY+(this.w/2);
+	checkBallPaddleContact(this,lPaddle);
+	checkBallPaddleContact(this,rPaddle);
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		this.vLeft*=-1;
@@ -78,6 +82,24 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	}else if(proposedNewY>canvas.height-this.w){
 		proposedNewY = canvas.height-this.w; //Don't let the ball leave the bottom of the canvas
 		this.vUp *= -1;
+	}
+	function checkBallPaddleContact(ball,paddle){
+		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
+			proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
+			ball.vLeft*=-1;
+		}
+		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
+			proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
+			ball.vLeft*=-1;
+		}
+		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
+			proposedNewY = paddle.y+paddle.h;//If hits bottom side of paddle while going up, reverse vertical direction
+			ball.vUp*=-1;
+		}
+		if(ball.vUp<0 && thereIsLineCircleContact(paddle.y,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
+			proposedNewY = paddle.y-ball.w;//If hits top side of paddle while going down, reverse vertical direction
+			ball.vUp*=-1;
+		}
 	}
 	function thereIsLineCircleContact(lineDistanceFromAxis,lineStart,lineStop,circleCentreCoordinate1,circleCentreCoordinate2,circleDiameter){
 		//For vertical line: circleCentreCoordinate1 is the x coordinate and circleCentreCoordinate2 is the y coordinate
@@ -101,6 +123,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 				return contact; //...return true
 			}else{
 				contact = false; //If the roots are outside of the line...
+				// console.log("Line crossed");
 				return contact; //...return false
 			}
 		}
@@ -118,6 +141,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 }
 //var balls []; - Could use this if want to have multiball
 var ball = new Ball(15,75,180,0,0.1);
+// var ball = new Ball(15,60,180,0,0.1);
 ball.setVLeft();
 //Players:
 function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
