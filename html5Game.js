@@ -59,12 +59,16 @@ function Ball(width,xPos,yPos,vLeft,vUp,tether){
 	this.y = yPos;
 	this.vLeft = vLeft;
 	this.vUp = vUp;
-	this.movingSpeed = 0.5;
+	this.movingSpeed = 0.3;
 	this.setVLeft();
 	this.tetheredTo = tether;
 }
 Ball.prototype.setVLeft = function(){
-	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
+	var lDirectionFactor = 1;
+	if(this.vLeft<0){
+		lDirectionFactor = -1; 
+	}
+	this.vLeft = (Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp)))*lDirectionFactor;
 }
 Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
 	var proposedCentreX = proposedNewX+(this.w/2);
@@ -95,10 +99,14 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
 			ball.vLeft*=-1;
+			ball.vUp+=(paddle.vUp/10);
+			ball.setVLeft();
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
 			ball.vLeft*=-1;
+			ball.vUp+=(paddle.vUp/10);
+			ball.setVLeft();
 		}
 		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
 			proposedNewY = paddle.y+paddle.h;//If hits bottom side of paddle while going up, reverse vertical direction
@@ -313,6 +321,9 @@ function test2(){
 }
 
 /*BUG RECORD*/
+//Just after changing it so that paddles impart momentum to the ball, the ball dissapeared mid game. Console.log showed that 
+//ball.x and ball.vLeft were both NaN. Setting them both through the console to numbers made the ball reappear. Also I think the ball
+//hit the paddle just before it disappeared.
 
 /*TO DO LIST*/
 //Make it so that the paddles can affect the direction of the ball depending on their velocity
@@ -331,3 +342,4 @@ function test2(){
 //Larger paddle/ Two paddles (maybe one slightly forward and they mirror each other's movement)
 //Multiball
 //Full/partial barrier behind paddle
+//Paddle can move in two dimensions
