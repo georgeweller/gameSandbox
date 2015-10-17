@@ -53,13 +53,14 @@ Paddle.prototype.setY = function(proposedNewY){
 var lPaddle = new Paddle(15,50,60,150);
 var rPaddle = new Paddle(15,50,525,150);
 //Balls:
-function Ball(width,xPos,yPos,vLeft,vUp){
+function Ball(width,xPos,yPos,vLeft,vUp,tether){
 	this.w = width;
 	this.x = xPos;
 	this.y = yPos;
 	this.vLeft = vLeft;
 	this.vUp = vUp;
 	this.movingSpeed = 0.3;
+	this.tetheredTo = tether;
 }
 Ball.prototype.setVLeft = function(){
 	this.vLeft = Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp));
@@ -136,7 +137,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	this.y = proposedNewY;
 }
 //var balls []; - Could use this if want to have multiball
-var ball = new Ball(15,75,180,0,0.1);
+var ball = new Ball(15,75,180,0,0.1,lPaddle);
 // var ball = new Ball(15,60,180,0,0.1);
 ball.setVLeft();
 //Players:
@@ -224,7 +225,15 @@ function movePaddles(t){
 }
 
 function moveBalls(t){
-	ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
+	if(ball.tetheredTo != null){
+		if(ball.tetheredTo===lPaddle){
+			ball.setPos(lPaddle.x+lPaddle.w,lPaddle.y+((lPaddle.h-ball.w)/2));
+		}else if(ball.tetheredTo===rPaddle){
+			ball.setPos(rPaddle.x-ball.w,rPaddle.y+((rPaddle.h-ball.w)/2));
+		}
+	}else{
+		ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
+	}
 }
 
 function respondToKey(event){
