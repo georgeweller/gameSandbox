@@ -66,31 +66,57 @@ Ball.prototype.setVLeft = function(){
 }
 Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
 	if(proposedNewX<0){
-		proposedNewX = 0;
+		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		this.vLeft*=-1;
 	}else if(proposedNewX>canvas.width-this.w){
-		proposedNewX = canvas.width - this.w;
+		proposedNewX = canvas.width - this.w; //Don't let the ball leave the right hand side of the canvas
 		this.vLeft *= -1;
 	}
 	if(proposedNewY<0){
-		proposedNewY = 0;
+		proposedNewY = 0; //Don't let the ball leave the top of the canvas
 		this.vUp *= -1;
 	}else if(proposedNewY>canvas.height-this.w){
-		proposedNewY = canvas.height-this.w;
+		proposedNewY = canvas.height-this.w; //Don't let the ball leave the bottom of the canvas
 		this.vUp *= -1;
 	}
-	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y-(this.w/2) && proposedNewY<=lPaddle.y+lPaddle.h-(this.w/2) && this.vLeft>0){
-		proposedNewX = lPaddle.x+lPaddle.w;
-		this.vLeft*=-1;
+	function thereIsLineCircleContact(lineDistanceFromAxis,lineStart,lineStop,circleCentreCoordinate1,circleCentreCoordinate2,circleDiameter){
+		//For vertical line: circleCentreCoordinate1 is the x coordinate and circleCentreCoordinate2 is the y coordinate
+		//For horizontal line: circleCentreCoordinate1 is the y coordinate and circleCentreCoordinate2 is the x coordinate
+		var contact;
+		var a = lineDistanceFromAxis;
+		var b = lineStart;
+		var c = lineStop;
+		var d = circleCentreCoordinate1;
+		var e = circleCentreCoordinate2;
+		var w = circleDiameter;
+		var disc = (8*a*d)-(4*a*a)-(4*d*d)+(w*w); //The discriminant of the quadratic equation
+		if(disc<0){ //If there are no roots to the quadratic equation...
+			contact = false;
+			return contact; //...return false
+		}else{
+			var root1 = ((2*e)+Math.sqrt(disc))/2;
+			var root2 = ((2*e)-Math.sqrt(disc))/2;
+			if((b<=root1&&root1<=c)||(b<=root2&&root2<=c)){ //If the roots lie on the line...
+				contact = true;
+				return contact; //...return true
+			}else{
+				contact = false; //If the roots are outside of the line...
+				return contact; //...return false
+			}
+		}
 	}
-	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y-(this.w/2) && proposedNewY<=rPaddle.y+rPaddle.h-(this.w/2) && this.vLeft<0){
-		proposedNewX = rPaddle.x-this.w;
-		this.vLeft*=-1;
-	}
+	// if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y-(this.w/2) && proposedNewY<=lPaddle.y+lPaddle.h-(this.w/2) && this.vLeft>0){
+	// 	proposedNewX = lPaddle.x+lPaddle.w;
+	// 	this.vLeft*=-1;
+	// }
+	// if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y-(this.w/2) && proposedNewY<=rPaddle.y+rPaddle.h-(this.w/2) && this.vLeft<0){
+	// 	proposedNewX = rPaddle.x-this.w;
+	// 	this.vLeft*=-1;
+	// }
 	this.x = proposedNewX;
 	this.y = proposedNewY;
 }
-//var balls []; - Could us this if want to have multiball
+//var balls []; - Could use this if want to have multiball
 var ball = new Ball(15,75,180,0,0.1);
 ball.setVLeft();
 //Players:
@@ -148,9 +174,6 @@ function gameLoop(timeStamp){
 		}
 	}//If the amount one time that has passed is greater than the length of one frame, then no updates will be made for now, but delta will keep its value
 	draw();
-	if(canvasWidth>=1000){
-		stop();
-	}
 	frameID = requestAnimationFrame(gameLoop);//requestAnimationFrame calls stretchCanvas and passes the current time as an argument
 }
 
@@ -252,6 +275,7 @@ function test2(){
 
 /*TO DO LIST*/
 //Add hit detection to top and bottom and back of paddles
+//Make it so that the paddles can affect the direction of the ball depending on their velocity
 //Make the ball change colour when it changes direction
 //Make it so that the ball can be tethered to paddles (so it moves with them until it is fired)
 //Make it so the ball starts of tethered and can then be fired by pressing d or <-
