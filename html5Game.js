@@ -79,11 +79,11 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		proposedNewY = canvas.height-this.w;
 		this.vUp *= -1;
 	}
-	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y && proposedNewY<=lPaddle.y+lPaddle.h && this.vLeft>0){
+	if(proposedNewX>=lPaddle.x && proposedNewX<=lPaddle.x+lPaddle.w && proposedNewY>=lPaddle.y-(this.w/2) && proposedNewY<=lPaddle.y+lPaddle.h-(this.w/2) && this.vLeft>0){
 		proposedNewX = lPaddle.x+lPaddle.w;
 		this.vLeft*=-1;
 	}
-	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y && proposedNewY<=rPaddle.y+rPaddle.h && this.vLeft<0){
+	if(proposedNewX+this.w>=rPaddle.x && proposedNewX+this.w<=rPaddle.x+rPaddle.w && proposedNewY>=rPaddle.y-(this.w/2) && proposedNewY<=rPaddle.y+rPaddle.h-(this.w/2) && this.vLeft<0){
 		proposedNewX = rPaddle.x-this.w;
 		this.vLeft*=-1;
 	}
@@ -251,7 +251,7 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Add hit detection to top and bottom of paddles
+//Add hit detection to top and bottom and back of paddles
 //Make the ball change colour when it changes direction
 //Make it so that the ball can be tethered to paddles (so it moves with them until it is fired)
 //Make it so the ball starts of tethered and can then be fired by pressing d or <-
