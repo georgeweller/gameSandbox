@@ -30,7 +30,8 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
-var avFruitSpawnTime = 10000;
+var avFruitSpawnTime = 3000;
+var fruit = [];//An array to keep track of all the fruit on the screen
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
 if(canvas.getContext){
@@ -90,6 +91,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	var proposedCentreY = proposedNewY+(this.w/2);
 	checkBallPaddleContact(this,lPaddle);
 	checkBallPaddleContact(this,rPaddle);
+	checkBallFruitContact(this);
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		this.vLeft*=-1;
@@ -128,6 +130,17 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 			ball.vUp*=-1;
 		}
 	}
+	function checkBallFruitContact(ball){
+		var ballCentreX = ball.x + (ball.w/2);
+		var ballCentreY = ball.y + (ball.w/2);
+		for (var i = 0; i < fruit.length; i++) {
+			fruitCentreX = fruit[i].x + (fruit[i].w/2);
+			fruitCentreY = fruit[i].y + (fruit[i].w/2);
+			if(thereIsCircleCircleContact(ballCentreX,ballCentreY,ball.w,fruitCentreX,fruitCentreY,fruit[i].w)){
+				fruit.splice(i,1); 
+			}
+		};
+	}
 	function thereIsLineCircleContact(lineDistanceFromAxis,lineStart,lineStop,circleCentreCoordinate1,circleCentreCoordinate2,circleDiameter){
 		var contact;
 		var a = lineDistanceFromAxis;
@@ -152,6 +165,47 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 			}
 		}
 	}
+	function thereIsCircleCircleContact(circle1CenterX,circle1CenterY,circle1Width,circle2CenterX,circle2CenterY,circle2Width){
+		var contact;
+		var a = circle1CenterX;
+		var b = circle1CenterY;
+		var w1 = circle1Width;
+		var c = circle2CenterX;
+		var d = circle2CenterY;
+		var w2 = circle2Width;
+		var alpha = (a-c)/(d-b); // y = alpha*x + beta
+		var beta = (c*c+ d*d + ((w1*w1)/4) - a*a - b*b -((w2*w2)/4))/(2*d-2*b);
+		var l = 1 + (alpha*alpha); //lx^2 + mx + n = 0
+		var m = 2 * (alpha*(beta - b) - a);
+		var n = (beta - b)*(beta - b) - (w1*w1)/4;
+		var disc = (m*m) - (4*l*n); //Disc = "b^2 -4ac"
+		if(disc<0){
+			contact = false;
+			return contact;
+		}else{
+			var ball1Root1 = Math.round((-m+Math.sqrt(disc))/(2*l));
+			var ball1Root2 = Math.round((-m-Math.sqrt(disc))/(2*l));
+			var o = l;
+			var p = 2 * (alpha*(beta - d) - c);
+			var q = (beta - d)*(beta - d) - (w1*w1)/4;
+			var disc2 = (p*p) - (4*o*q);
+			if(disc2<0){
+				contact = false;
+				return contact;
+			}else{
+				var ball2Root1 = Math.round((-p+Math.sqrt(disc2))/(2*o));
+				var ball2Root2 = Math.round((-p-Math.sqrt(disc2))/(2*o));
+				if(ball1Root1===ball2Root1 && ball1Root2===ball2Root2){
+					contact = true;
+					return contact;
+				}else{
+					console.log(ball1Root1+" "+ball2Root1+" "+ball1Root2+" "+ball2Root2);
+					contact = false;
+					return contact;
+				}
+			}
+		}
+	}
 	this.x = proposedNewX;
 	this.y = proposedNewY;
 }
@@ -163,7 +217,6 @@ function Fruit(xPos,yPos){
 	this.y = yPos;
 	this.w = 20;
 }
-var fruit = [];//An array to keep track of all the fruit on the screen
 //Players:
 function Player(paddle,scoreCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
@@ -276,6 +329,13 @@ function pointScoredBy(scorer){
 }
 
 function respondToKey(event){
+	if(event.type==="keydown" && event.keyCode===80){
+		if(running){
+			stop();
+		}else{
+			start();
+		}
+	}
 	if(running){ //If the game is running...
 		if(event.type==="keydown"){
 			if(event.keyCode===87){
