@@ -30,7 +30,8 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
-var ballSpeed = 0.3;
+var ballStartingSpeed = 0.3;
+var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var avFruitSpawnTime = 10000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 /*SETTING UP THE CANVAS*/
@@ -80,10 +81,8 @@ function Ball(width,tether,player){
 	this.w = width;
 	this.x = 0;
 	this.y = 0;
-	this.vLeft = 0;
+	this.vLeft = -ballStartingSpeed;
 	this.vUp = 0;
-	this.movingSpeed = ballSpeed;
-	this.setVLeft();
 	this.tetheredTo = tether;
 	this.owner = player;
 	if(this.tetheredTo != null){
@@ -92,13 +91,6 @@ function Ball(width,tether,player){
 			this.setPos(rPaddle.x-this.w,rPaddle.y+((rPaddle.h-this.w)/2));
 		}
 	}
-}
-Ball.prototype.setVLeft = function(){
-	var lDirectionFactor = 1;
-	if(this.vLeft<0){
-		lDirectionFactor = -1; 
-	}
-	this.vLeft = (Math.sqrt((this.movingSpeed*this.movingSpeed)-(this.vUp*this.vUp)))*lDirectionFactor;
 }
 Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
 	var proposedCentreX = proposedNewX+(this.w/2);
@@ -115,32 +107,30 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	}
 	if(proposedNewY<0){
 		proposedNewY = 0; //Don't let the ball leave the top of the canvas
-		this.vUp *= -1;
+		this.vUp *= -eBallWalls;
 	}else if(proposedNewY>canvas.height-this.w){
 		proposedNewY = canvas.height-this.w; //Don't let the ball leave the bottom of the canvas
-		this.vUp *= -1;
+		this.vUp *= -eBallWalls;
 	}
 	function checkBallPaddleContact(ball,paddle){
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
-			// proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
+			//If hits right side of paddle while going left, reverse horizontal direction
 			ball.vLeft*=-1;
 			ball.owner = ball.vLeft < 0 ? playerL : playerR;
-			ball.vUp+=(paddle.vUp/5);
-			ball.setVLeft();
+			ball.vUp+=(paddle.vUp/10);
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
-			// proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
+			//If hits left side of paddle while going right, reverse horizontal direction
 			ball.vLeft*=-1;
 			ball.owner = ball.vLeft < 0 ? playerL : playerR;
-			ball.vUp+=(paddle.vUp/5);
-			ball.setVLeft();
+			ball.vUp+=(paddle.vUp/10);
 		}
 		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
-			// proposedNewY = paddle.y+paddle.h;//If hits bottom side of paddle while going up, reverse vertical direction
+			//If hits bottom side of paddle while going up, reverse vertical direction
 			ball.vUp*=-1;
 		}
 		if(ball.vUp<0 && thereIsLineCircleContact(paddle.y,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
-			// proposedNewY = paddle.y-ball.w;//If hits top side of paddle while going down, reverse vertical direction
+			//If hits top side of paddle while going down, reverse vertical direction
 			ball.vUp*=-1;
 		}
 	}
