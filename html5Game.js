@@ -30,6 +30,7 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
+var avFruitSpawnTime = 10000;
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
 if(canvas.getContext){
@@ -156,7 +157,13 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 }
 //var balls []; - Could use this if want to have multiball
 var ball = new Ball(15,lPaddle);
-
+/*FRUIT*/
+function Fruit(xPos,yPos){
+	this.x = xPos;
+	this.y = yPos;
+	this.w = 20;
+}
+var fruit = [];//An array to keep track of all the fruit on the screen
 //Players:
 function Player(paddle,scoreCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
@@ -209,6 +216,7 @@ function gameLoop(timeStamp){
 function update(t){
 	movePaddles(t);	
 	moveBalls(t);
+	generateFruit(t);
 }
 
 function draw(firstDraw){
@@ -220,9 +228,15 @@ function draw(firstDraw){
 	ctx.fillStyle = "#0000ff"; //Set fill colour to blue and...
 	ctx.fillRect(rPaddle.x,rPaddle.y,rPaddle.w,rPaddle.h); //...draw the right paddle
 	ctx.beginPath();
-	ctx.arc(ball.x+(ball.w/2),ball.y+(ball.w/2),ball.w/2,0,2*Math.PI,false);
+	ctx.arc(ball.x+(ball.w/2),ball.y+(ball.w/2),ball.w/2,0,2*Math.PI,false);//Draw the ball
 	ctx.fillStyle = "#000000";
-	ctx.fill();	
+	ctx.fill();
+	for (var i = 0; i < fruit.length; i+=1) {
+	 	ctx.beginPath();
+		ctx.arc(fruit[i].x+(fruit[i].w/2),fruit[i].y+(fruit[i].w/2),fruit[i].w/2,0,2*Math.PI,false);//Draw the ball
+		ctx.fillStyle = "#00ff00";
+		ctx.fill();
+	};	
 }
 
 function movePaddles(t){
@@ -239,6 +253,17 @@ function moveBalls(t){
 		}
 	}else{
 		ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
+	}
+}
+
+function generateFruit(t){
+	if(fruit.length<3 && ball.tetheredTo === null){
+		var randomNumber = Math.random()*(avFruitSpawnTime);
+		if(randomNumber>=0 && randomNumber<=t){
+			var newFruitX = (Math.random()*(rPaddle.x-ball.w-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
+			var newFruitY = Math.random()*(canvas.height-ball.w);
+			fruit.push(new Fruit(newFruitX,newFruitY));
+		}
 	}
 }
 
@@ -333,9 +358,8 @@ function test2(){
 
 /*TO DO LIST*/
 //Make the ball change colour when it changes direction
-//Make stars/coins randomly appear up to some maximum number that can be present at any time
-//Add hit detection between ball and stars/coins
-//Add player star counter on screen and also as a property of Player
+//Add hit detection between ball and fruit
+//Add player fruit counter on screen and also as a property of Player
 //Make crates appear
 
 /*WEAPON/ITEM IDEAS*/
