@@ -30,7 +30,8 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
-var avFruitSpawnTime = 1000;
+var ballSpeed = 0.3;
+var avFruitSpawnTime = 10000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -81,7 +82,7 @@ function Ball(width,tether,player){
 	this.y = 0;
 	this.vLeft = 0;
 	this.vUp = 0;
-	this.movingSpeed = 0.4;
+	this.movingSpeed = ballSpeed;
 	this.setVLeft();
 	this.tetheredTo = tether;
 	this.owner = player;
@@ -405,7 +406,11 @@ function test2(){
 
 /*TO DO LIST*/
 //Make the ball change colour when it changes direction
+//Make numFruit decay over time
+//Make player display areas
 //Make crates appear
+//Add winning score with a winner announcement (maybe players can set winning score at start of game)
+//Make player names editable (with a Player.name property to record them)
 
 /*WEAPON/ITEM IDEAS*/
 //Speed up own paddle
