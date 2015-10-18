@@ -30,7 +30,7 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
-var avFruitSpawnTime = 3000;
+var avFruitSpawnTime = 10000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -173,37 +173,12 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		var c = circle2CenterX;
 		var d = circle2CenterY;
 		var w2 = circle2Width;
-		var alpha = (a-c)/(d-b); // y = alpha*x + beta
-		var beta = (c*c+ d*d + ((w1*w1)/4) - a*a - b*b -((w2*w2)/4))/(2*d-2*b);
-		var l = 1 + (alpha*alpha); //lx^2 + mx + n = 0
-		var m = 2 * (alpha*(beta - b) - a);
-		var n = (beta - b)*(beta - b) - (w1*w1)/4;
-		var disc = (m*m) - (4*l*n); //Disc = "b^2 -4ac"
-		if(disc<0){
+		if(Math.sqrt(((b-d)*(b-d))+((a-c)*(a-c)))<=(w1+w2)){//If distance between circle centers is less than sum of widths...
+			contact = true;
+			return contact;//...return true!
+		}else{
 			contact = false;
 			return contact;
-		}else{
-			var ball1Root1 = Math.round((-m+Math.sqrt(disc))/(2*l));
-			var ball1Root2 = Math.round((-m-Math.sqrt(disc))/(2*l));
-			var o = l;
-			var p = 2 * (alpha*(beta - d) - c);
-			var q = (beta - d)*(beta - d) - (w1*w1)/4;
-			var disc2 = (p*p) - (4*o*q);
-			if(disc2<0){
-				contact = false;
-				return contact;
-			}else{
-				var ball2Root1 = Math.round((-p+Math.sqrt(disc2))/(2*o));
-				var ball2Root2 = Math.round((-p-Math.sqrt(disc2))/(2*o));
-				if(ball1Root1===ball2Root1 && ball1Root2===ball2Root2){
-					contact = true;
-					return contact;
-				}else{
-					console.log(ball1Root1+" "+ball2Root1+" "+ball1Root2+" "+ball2Root2);
-					contact = false;
-					return contact;
-				}
-			}
 		}
 	}
 	this.x = proposedNewX;
@@ -326,6 +301,7 @@ function pointScoredBy(scorer){
 	ball = new Ball(15,scorer.paddle);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
 	lPaddle.y = (canvas.height-lPaddle.h)/2;
 	rPaddle.y = (canvas.height-rPaddle.h)/2;
+	fruit.splice(0,fruit.length);
 }
 
 function respondToKey(event){
