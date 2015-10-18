@@ -67,7 +67,7 @@ function Ball(width,tether){
 	this.y = 0;
 	this.vLeft = 0;
 	this.vUp = 0;
-	this.movingSpeed = 0.3;
+	this.movingSpeed = 0.4;
 	this.setVLeft();
 	this.tetheredTo = tether;
 	if(this.tetheredTo != null){
@@ -109,13 +109,13 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			// proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
 			ball.vLeft*=-1;
-			ball.vUp+=(paddle.vUp/10);
+			ball.vUp+=(paddle.vUp/5);
 			ball.setVLeft();
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			// proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
 			ball.vLeft*=-1;
-			ball.vUp+=(paddle.vUp/10);
+			ball.vUp+=(paddle.vUp/5);
 			ball.setVLeft();
 		}
 		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
