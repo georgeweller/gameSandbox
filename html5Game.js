@@ -20,8 +20,7 @@ var EventUtil = {
 	}
 };
 
-/*GAME VARIABLES*/
-////Variables for the game in general:
+/*GAME SETTINGS ETC*/
 var running = false;//Event handlers should check this before they do anything, events shouldn't do anything while the game is paused
 var started = false;
 var timeStep = 1000/60; //Time per frame = 1000ms / 60fps = 16.667ms
@@ -29,9 +28,18 @@ var delta = 0;
 var lastFrameTimeMS = 0;
 var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
-////Variables for specific components of the game:
 var canvasWidth = 600;
 var canvasHeight = 400;
+/*SETTING UP THE CANVAS*/
+var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
+if(canvas.getContext){
+	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
+}
+setupCanvas();
+function setupCanvas(){
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+}
 //Paddles:
 function Paddle(width,height,xPos,yPos){
 	this.w = width;
@@ -50,18 +58,24 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-var lPaddle = new Paddle(15,50,60,150);
-var rPaddle = new Paddle(15,50,525,150);
+var lPaddle = new Paddle(15,70,60,150);
+var rPaddle = new Paddle(15,70,525,150);
 //Balls:
-function Ball(width,xPos,yPos,vLeft,vUp,tether){
+function Ball(width,vUp,tether){
 	this.w = width;
-	this.x = xPos;
-	this.y = yPos;
-	this.vLeft = vLeft;
+	this.x = 0;
+	this.y = 0;
+	this.vLeft = 0;
 	this.vUp = vUp;
 	this.movingSpeed = 0.3;
 	this.setVLeft();
 	this.tetheredTo = tether;
+	if(this.tetheredTo != null){
+		if(this.tetheredTo===lPaddle){this.setPos(lPaddle.x+lPaddle.w,lPaddle.y+((lPaddle.h-this.w)/2));
+		}else if(this.tetheredTo===rPaddle){
+			this.setPos(rPaddle.x-this.w,rPaddle.y+((rPaddle.h-this.w)/2));
+		}
+	}
 }
 Ball.prototype.setVLeft = function(){
 	var lDirectionFactor = 1;
@@ -78,15 +92,11 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		this.vLeft*=-1;
-		playerR.score+=1;
-		document.getElementById('pRScore').innerHTML = playerR.score;
-		ball = new Ball(15,75,180,0,0.1,lPaddle);//This is not a good strategy because it will fill up the memory with balls
+		pointScoredBy(playerR);
 	}else if(proposedNewX>canvas.width-this.w){
 		proposedNewX = canvas.width - this.w; //Don't let the ball leave the right hand side of the canvas
 		this.vLeft *= -1;
-		playerL.score+=1;
-		document.getElementById('pLScore').innerHTML = playerL.score;
-		ball = new Ball(15,75,180,0,0.1,rPaddle);//This is not a good strategy because it will fill up the memory with balls
+		pointScoredBy(playerL);
 	}
 	if(proposedNewY<0){
 		proposedNewY = 0; //Don't let the ball leave the top of the canvas
@@ -118,14 +128,12 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		}
 	}
 	function thereIsLineCircleContact(lineDistanceFromAxis,lineStart,lineStop,circleCentreCoordinate1,circleCentreCoordinate2,circleDiameter){
-		//For vertical line: circleCentreCoordinate1 is the x coordinate and circleCentreCoordinate2 is the y coordinate
-		//For horizontal line: circleCentreCoordinate1 is the y coordinate and circleCentreCoordinate2 is the x coordinate
 		var contact;
 		var a = lineDistanceFromAxis;
 		var b = lineStart;
 		var c = lineStop;
-		var d = circleCentreCoordinate1;
-		var e = circleCentreCoordinate2;
+		var d = circleCentreCoordinate1;//For vertical line: circleCentreCoordinate1 is the x coordinate and circleCentreCoordinate2 is the y coordinate
+		var e = circleCentreCoordinate2;//For horizontal line: circleCentreCoordinate1 is the y coordinate and circleCentreCoordinate2 is the x coordinate
 		var w = circleDiameter;
 		var disc = (8*a*d)-(4*a*a)-(4*d*d)+(w*w); //The discriminant of the quadratic equation
 		if(disc<0){ //If there are no roots to the quadratic equation...
@@ -139,7 +147,6 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 				return contact; //...return true
 			}else{
 				contact = false; //If the roots are outside of the line...
-				// console.log("Line crossed");
 				return contact; //...return false
 			}
 		}
@@ -148,28 +155,18 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	this.y = proposedNewY;
 }
 //var balls []; - Could use this if want to have multiball
-var ball = new Ball(15,75,180,0,0.1,rPaddle);
+var ball = new Ball(15,0.1,lPaddle);
 
 //Players:
-function Player(paddle){ //Has to come after paddles are created so that paddles can be assigned to players
+function Player(paddle,scoreCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
 	this.pressingUp = false;
 	this.pressingDown = false;
 	this.paddle = paddle;
+	this.scoreCounter = document.getElementById(scoreCounterId);
 }
-var playerL = new Player(lPaddle);
-var playerR = new Player(rPaddle);
-
-/*SETTING UP THE CANVAS*/
-var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
-if(canvas.getContext){
-	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
-}
-setupCanvas();
-function setupCanvas(){
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-}
+var playerL = new Player(lPaddle,"pLScore");
+var playerR = new Player(rPaddle,"pRScore");
 
 /*GAME FUNCTIONS*/
 start();//Start the game as soon as the page loads
@@ -243,6 +240,12 @@ function moveBalls(t){
 	}else{
 		ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
 	}
+}
+
+function pointScoredBy(scorer){
+	scorer.score+=1;
+	scorer.scoreCounter.innerHTML = scorer.score;
+	ball = new Ball(15,0.1,scorer.paddle);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
 }
 
 function respondToKey(event){
@@ -324,6 +327,7 @@ function test2(){
 //Just after changing it so that paddles impart momentum to the ball, the ball dissapeared mid game. Console.log showed that 
 //ball.x and ball.vLeft were both NaN. Setting them both through the console to numbers made the ball reappear. Also I think the ball
 //hit the paddle just before it disappeared.
+//I managed to make the ball go completely vertical directly next to the paddle.
 
 /*TO DO LIST*/
 //Make it so that the paddles can affect the direction of the ball depending on their velocity
