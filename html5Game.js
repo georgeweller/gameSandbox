@@ -61,12 +61,12 @@ Paddle.prototype.setY = function(proposedNewY){
 var lPaddle = new Paddle(15,70,60,150);
 var rPaddle = new Paddle(15,70,525,150);
 //Balls:
-function Ball(width,vUp,tether){
+function Ball(width,tether){
 	this.w = width;
 	this.x = 0;
 	this.y = 0;
 	this.vLeft = 0;
-	this.vUp = vUp;
+	this.vUp = 0;
 	this.movingSpeed = 0.3;
 	this.setVLeft();
 	this.tetheredTo = tether;
@@ -155,7 +155,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	this.y = proposedNewY;
 }
 //var balls []; - Could use this if want to have multiball
-var ball = new Ball(15,0.1,lPaddle);
+var ball = new Ball(15,lPaddle);
 
 //Players:
 function Player(paddle,scoreCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
@@ -245,7 +245,9 @@ function moveBalls(t){
 function pointScoredBy(scorer){
 	scorer.score+=1;
 	scorer.scoreCounter.innerHTML = scorer.score;
-	ball = new Ball(15,0.1,scorer.paddle);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
+	ball = new Ball(15,scorer.paddle);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
+	lPaddle.y = (canvas.height-lPaddle.h)/2;
+	rPaddle.y = (canvas.height-rPaddle.h)/2;
 }
 
 function respondToKey(event){
