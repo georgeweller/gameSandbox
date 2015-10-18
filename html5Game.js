@@ -154,6 +154,10 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 				if(ball.owner.numFruit<5){
 					ball.owner.numFruit+=1;
 					ball.owner.fruitCounter.innerHTML = ball.owner.numFruit;
+					if(ball.owner.numFruit===5){
+						ball.owner.paddle.defaultSpeed = 0.6;
+						ball.owner.paddle.h = 150;
+					}
 				}
 			}
 		};
@@ -401,7 +405,6 @@ function test2(){
 
 /*TO DO LIST*/
 //Make the ball change colour when it changes direction
-//Add player fruit counter on screen and also as a property of Player
 //Make crates appear
 
 /*WEAPON/ITEM IDEAS*/
