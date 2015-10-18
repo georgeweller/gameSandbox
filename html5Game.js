@@ -107,23 +107,23 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	}
 	function checkBallPaddleContact(ball,paddle){
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
-			proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
+			// proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
 			ball.vLeft*=-1;
 			ball.vUp+=(paddle.vUp/10);
 			ball.setVLeft();
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
-			proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
+			// proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
 			ball.vLeft*=-1;
 			ball.vUp+=(paddle.vUp/10);
 			ball.setVLeft();
 		}
 		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
-			proposedNewY = paddle.y+paddle.h;//If hits bottom side of paddle while going up, reverse vertical direction
+			// proposedNewY = paddle.y+paddle.h;//If hits bottom side of paddle while going up, reverse vertical direction
 			ball.vUp*=-1;
 		}
 		if(ball.vUp<0 && thereIsLineCircleContact(paddle.y,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
-			proposedNewY = paddle.y-ball.w;//If hits top side of paddle while going down, reverse vertical direction
+			// proposedNewY = paddle.y-ball.w;//If hits top side of paddle while going down, reverse vertical direction
 			ball.vUp*=-1;
 		}
 	}
