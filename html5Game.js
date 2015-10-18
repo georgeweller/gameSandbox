@@ -30,7 +30,7 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
-var avFruitSpawnTime = 10000;
+var avFruitSpawnTime = 1000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
@@ -62,8 +62,20 @@ Paddle.prototype.setY = function(proposedNewY){
 };
 var lPaddle = new Paddle(15,70,60,150);
 var rPaddle = new Paddle(15,70,525,150);
+//Players:
+function Player(paddle,scoreCounterId,fruitCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
+	this.score = 0;
+	this.pressingUp = false;
+	this.pressingDown = false;
+	this.paddle = paddle;
+	this.scoreCounter = document.getElementById(scoreCounterId);
+	this.fruitCounter = document.getElementById(fruitCounterId);
+	this.numFruit = 0;
+}
+var playerL = new Player(lPaddle,"pLScore","pLFruit");
+var playerR = new Player(rPaddle,"pRScore","pRFruit");
 //Balls:
-function Ball(width,tether){
+function Ball(width,tether,player){
 	this.w = width;
 	this.x = 0;
 	this.y = 0;
@@ -72,7 +84,7 @@ function Ball(width,tether){
 	this.movingSpeed = 0.4;
 	this.setVLeft();
 	this.tetheredTo = tether;
-	this.owner = tether;
+	this.owner = player;
 	if(this.tetheredTo != null){
 		if(this.tetheredTo===lPaddle){this.setPos(lPaddle.x+lPaddle.w,lPaddle.y+((lPaddle.h-this.w)/2));
 		}else if(this.tetheredTo===rPaddle){
@@ -95,11 +107,9 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	checkBallFruitContact(this);
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
-		this.vLeft*=-1;
 		pointScoredBy(playerR);
 	}else if(proposedNewX>canvas.width-this.w){
 		proposedNewX = canvas.width - this.w; //Don't let the ball leave the right hand side of the canvas
-		this.vLeft *= -1;
 		pointScoredBy(playerL);
 	}
 	if(proposedNewY<0){
@@ -113,12 +123,14 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			// proposedNewX = paddle.x+paddle.w;//If hits right side of paddle while going left, reverse horizontal direction
 			ball.vLeft*=-1;
+			ball.owner = ball.vLeft < 0 ? playerL : playerR;
 			ball.vUp+=(paddle.vUp/5);
 			ball.setVLeft();
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			// proposedNewX = paddle.x-ball.w;//If hits left side of paddle while going right, reverse horizontal direction
 			ball.vLeft*=-1;
+			ball.owner = ball.vLeft < 0 ? playerL : playerR;
 			ball.vUp+=(paddle.vUp/5);
 			ball.setVLeft();
 		}
@@ -139,6 +151,10 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 			fruitCentreY = fruit[i].y + (fruit[i].w/2);
 			if(thereIsCircleCircleContact(ballCentreX,ballCentreY,ball.w,fruitCentreX,fruitCentreY,fruit[i].w)){
 				fruit.splice(i,1); 
+				if(ball.owner.numFruit<5){
+					ball.owner.numFruit+=1;
+					ball.owner.fruitCounter.innerHTML = ball.owner.numFruit;
+				}
 			}
 		};
 	}
@@ -186,24 +202,13 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	this.y = proposedNewY;
 }
 //var balls []; - Could use this if want to have multiball
-var ball = new Ball(15,lPaddle);
+var ball = new Ball(15,lPaddle,playerL);
 /*FRUIT*/
 function Fruit(xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.w = 20;
 }
-//Players:
-function Player(paddle,scoreCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
-	this.score = 0;
-	this.pressingUp = false;
-	this.pressingDown = false;
-	this.paddle = paddle;
-	this.scoreCounter = document.getElementById(scoreCounterId);
-	this.numFruit = 0;
-}
-var playerL = new Player(lPaddle,"pLScore");
-var playerR = new Player(rPaddle,"pRScore");
 
 /*GAME FUNCTIONS*/
 start();//Start the game as soon as the page loads
@@ -300,7 +305,7 @@ function generateFruit(t){
 function pointScoredBy(scorer){
 	scorer.score+=1;
 	scorer.scoreCounter.innerHTML = scorer.score;
-	ball = new Ball(15,scorer.paddle);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
+	ball = new Ball(15,scorer.paddle,scorer);//The old ball object will be garbage collected because there is no way to refer to it, so it won't take up memory
 	lPaddle.y = (canvas.height-lPaddle.h)/2;
 	rPaddle.y = (canvas.height-rPaddle.h)/2;
 	fruit.splice(0,fruit.length);
