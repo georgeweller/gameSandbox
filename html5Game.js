@@ -332,9 +332,11 @@ function test2(){
 //I managed to make the ball go completely vertical directly next to the paddle.
 
 /*TO DO LIST*/
-//Make it so that the paddles can affect the direction of the ball depending on their velocity
 //Make the ball change colour when it changes direction
-//Make the paddles go back to starting positions when the game restarts
+//Make stars/coins randomly appear up to some maximum number that can be present at any time
+//Add hit detection between ball and stars/coins
+//Add player star counter on screen and also as a property of Player
+//Make crates appear
 
 /*WEAPON/ITEM IDEAS*/
 //Speed up own paddle
