@@ -72,6 +72,7 @@ function Ball(width,tether){
 	this.movingSpeed = 0.4;
 	this.setVLeft();
 	this.tetheredTo = tether;
+	this.owner = tether;
 	if(this.tetheredTo != null){
 		if(this.tetheredTo===lPaddle){this.setPos(lPaddle.x+lPaddle.w,lPaddle.y+((lPaddle.h-this.w)/2));
 		}else if(this.tetheredTo===rPaddle){
@@ -173,7 +174,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		var c = circle2CenterX;
 		var d = circle2CenterY;
 		var w2 = circle2Width;
-		if(Math.sqrt(((b-d)*(b-d))+((a-c)*(a-c)))<=(w1+w2)){//If distance between circle centers is less than sum of widths...
+		if(Math.sqrt(((b-d)*(b-d))+((a-c)*(a-c)))<=((w1+w2)/2)){//If distance between circle centers is less than sum of widths...
 			contact = true;
 			return contact;//...return true!
 		}else{
@@ -199,6 +200,7 @@ function Player(paddle,scoreCounterId){ //Has to come after paddles are created 
 	this.pressingDown = false;
 	this.paddle = paddle;
 	this.scoreCounter = document.getElementById(scoreCounterId);
+	this.numFruit = 0;
 }
 var playerL = new Player(lPaddle,"pLScore");
 var playerR = new Player(rPaddle,"pRScore");
@@ -394,7 +396,6 @@ function test2(){
 
 /*TO DO LIST*/
 //Make the ball change colour when it changes direction
-//Add hit detection between ball and fruit
 //Add player fruit counter on screen and also as a property of Player
 //Make crates appear
 
