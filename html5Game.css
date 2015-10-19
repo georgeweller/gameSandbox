@@ -27,15 +27,19 @@ body{
 	float: right;
 }
 
-.board #pLInventory,.board #pRInventory{
+.board #pLMissiles,.board #pRMissiles{
 	font-size: 0.5em;
 	vertical-align: top;
 }
 
+#pLInventory,#pRInventory{
+	background-color: white;
+	display: inline-block;
+	border: 5px solid black;
+}
+
 #gameCanvas{
 	border: 1px solid black;
-	margin-left: auto;
-	margin-right: auto;
-	display: block;
+	display: inline;
 	background-color: white;
 }

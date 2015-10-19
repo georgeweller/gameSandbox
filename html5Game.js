@@ -102,7 +102,6 @@ Player.prototype.changeFruitNumBy = function(amount){
 	this.fruitCounter.innerHTML = this.numFruit;
 	if(this.numFruit===5){
 		this.paddle.h = defaultPaddleHeight*2;
-	}else{
 	}
 }
 Player.prototype.useItem = function(){
@@ -131,8 +130,8 @@ Player.prototype.fireMissile = function(){
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	}
 }
-var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
-var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
+var playerL = new Player(lPaddle,"pLScore","pLFruit","pLMissiles");
+var playerR = new Player(rPaddle,"pRScore","pRFruit","pRMissiles");
 players.push(playerL,playerR);
 //Balls:
 function Ball(width,tether,player){
@@ -546,7 +545,6 @@ function test2(){
 /*TO DO LIST*/
 //Make player display areas
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
-//Make it so you lose one fruit per death rather than all five if you die with five (maybe you lose two if you die with five)
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
 
