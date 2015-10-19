@@ -35,7 +35,7 @@ var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
 var crateWidth = 20;
-var avCrateSpawnTime = 10000;
+var avCrateSpawnTime = 1000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
 /*SETTING UP THE CANVAS*/
@@ -77,6 +77,7 @@ function Player(paddle,scoreCounterId,fruitCounterId){ //Has to come after paddl
 	this.scoreCounter = document.getElementById(scoreCounterId);
 	this.fruitCounter = document.getElementById(fruitCounterId);
 	this.numFruit = 0;
+	this.inventory = [];
 }
 var playerL = new Player(lPaddle,"pLScore","pLFruit");
 var playerR = new Player(rPaddle,"pRScore","pRFruit");
@@ -102,6 +103,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	checkBallPaddleContact(this,lPaddle);
 	checkBallPaddleContact(this,rPaddle);
 	checkBallFruitContact(this);
+	checkBallCrateContact(this);
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		pointScoredBy(playerR);
@@ -154,6 +156,22 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 						ball.owner.paddle.h = 150;
 					}
 				}
+			}
+		};
+	}
+	function checkBallCrateContact(ball){
+		var ballCentreX = ball.x + (ball.w/2);
+		var ballCentreY = ball.y + (ball.w/2);
+		for (var i = 0; i < crates.length; i++) {
+			var crate = crates[i];
+			if(thereIsLineCircleContact(crate.y,crate.x,crate.x+crate.w,ballCentreY,ballCentreX,ball.w)//Top side of crate
+				|| thereIsLineCircleContact(crate.x+crate.w,crate.y,crate.y+crate.w,ballCentreX,ballCentreY,ball.w)//Right side of crate
+				|| thereIsLineCircleContact(crate.y+crate.w,crate.x,crate.x+crate.w,ballCentreY,ballCentreX,ball.w)//Bottom side of crate
+				|| thereIsLineCircleContact(crate.x,crate.y,crate.y+crate.w,ballCentreX,ballCentreY,ball.w)){
+					if(ball.owner.inventory.length<3){
+						ball.owner.inventory.push(crate.goodies);
+					}
+					crates.splice(i,1);
 			}
 		};
 	}
@@ -213,6 +231,7 @@ function Crate(xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.w = crateWidth;
+	this.goodies = "missile";
 }
 
 /*GAME FUNCTIONS*/
@@ -336,6 +355,7 @@ function pointScoredBy(scorer){
 		opponent.numFruit===0
 		opponent.paddle.h = 70;
 		opponent.paddle.movingSpeed = 0.4;
+		opponent.fruitCounter = document.getElementById(fruitCounterId);
 	}
 }
 
