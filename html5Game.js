@@ -30,12 +30,14 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 600;
 var canvasHeight = 400;
+var paddles = [];
+var defaultPaddleHeight = 80;
 var ballStartingSpeed = 0.3;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
 var crateWidth = 20;
-var avCrateSpawnTime = 1000;
+var avCrateSpawnTime = 5000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
 var missileWidth = 50;
@@ -70,8 +72,9 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-var lPaddle = new Paddle(15,70,60,150);
-var rPaddle = new Paddle(15,70,525,150);
+var lPaddle = new Paddle(15,defaultPaddleHeight,60,150);
+var rPaddle = new Paddle(15,defaultPaddleHeight,525,150);
+paddles.push(lPaddle,rPaddle);
 //Players:
 function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
@@ -86,10 +89,12 @@ function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has 
 	this.inventorySelectionNum = 0;
 }
 Player.prototype.useItem = function(){
-	if(this.inventory.length>0){
+	if(ball.tetheredTo===null && this.inventory.length>0){
 		if(this.inventory[this.inventorySelectionNum]==="missile"){
 			this.fireMissile();
 		}
+		this.inventory.splice(this.inventorySelectionNum,1);
+		this.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
 	}
 }
 Player.prototype.fireMissile = function(){
@@ -101,9 +106,7 @@ Player.prototype.fireMissile = function(){
 		var missileX = rPaddle.x-missileWidth;
 		var direction = "left";
 	}
-	missiles.push(new Missile(missileX,missileY,direction));
-	this.inventory.splice(this.inventorySelectionNum,1);
-	this.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
+	missiles.push(new Missile(missileX,missileY,direction,this.paddle));
 }
 var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
 var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
@@ -261,16 +264,31 @@ function Crate(xPos,yPos){
 	this.goodies = "missile";
 }
 /*MISSILES*/
-function Missile(xPos,yPos,direction){
+function Missile(xPos,yPos,direction,paddleFiredFrom){
 	this.x = xPos;
 	this.y = yPos;
 	this.w = missileWidth;
 	this.h = missileHeight;
+	this.firedFrom = paddleFiredFrom;
 	if(direction === "left"){
 		this.vLeft = missileSpeed;
 	}else if(direction ==="right"){
 		this.vLeft = missileSpeed*-1;
 	}
+}
+Missile.prototype.checkForImpact = function(){
+	if(this.x<=0 || this.x >= canvas.width-this.w){
+			missiles.splice(missiles.indexOf(this),1);
+	}
+	for (var i = 0; i < paddles.length; i++) {
+		var paddle = paddles[i];
+		if(paddle!==this.firedFrom){
+			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w+this.w)){
+				missiles.splice(missiles.indexOf(this),1);
+				paddle.h /= 2;
+			}
+		}
+	};
 }
 
 /*GAME FUNCTIONS*/
@@ -367,9 +385,7 @@ function moveBalls(t){
 function moveMissiles(t){
 	for (var i = 0; i < missiles.length; i++) {
 		missiles[i].x -= (missiles[i].vLeft*t);
-		if(missiles[i].x<=0 || missiles[i].x >= canvas.width-missiles[i].w){
-			missiles.splice(i,1);
-		}
+		missiles[i].checkForImpact();		
 	};
 }
 
@@ -389,7 +405,7 @@ function generateCrate(t){
 		var randomNumber = Math.random()*avCrateSpawnTime;
 		if(randomNumber<=t){
 			var newCrateX = (Math.random()*(rPaddle.x-crateWidth-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
-			var newCrateY = Math.random()*canvas.height-crateWidth;
+			var newCrateY = Math.random()*(canvas.height-crateWidth);
 			crates.push(new Crate(newCrateX,newCrateY));
 		}
 	}
@@ -410,6 +426,9 @@ function pointScoredBy(scorer){
 		opponent.paddle.movingSpeed = 0.4;
 		opponent.fruitCounter = document.getElementById(fruitCounterId);
 	}
+	for (var i = 0; i < paddles.length; i++) {
+		paddles[i].h = defaultPaddleHeight;
+	};
 }
 
 function respondToKey(event){
@@ -499,11 +518,10 @@ function test2(){
 }
 
 /*BUG RECORD*/
-
+//Sometimes it says a player has missiles but they dont
+//Paddle hit detection on missiles often doesn't work
 
 /*TO DO LIST*/
-//Make it possible for users to create missiles
-//Make missiles interact with paddles
 //Make player display areas
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
