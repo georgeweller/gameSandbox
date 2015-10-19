@@ -107,6 +107,12 @@ Player.prototype.fireMissile = function(){
 		var direction = "left";
 	}
 	missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+	if(this.numFruit===5){
+		missileY = this.paddle.y;
+		missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+		missileY = this.paddle.y+this.paddle.h-missileHeight;
+		missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+	}
 }
 var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
 var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
@@ -523,6 +529,8 @@ function test2(){
 
 /*TO DO LIST*/
 //Make player display areas
+//Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
+//
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
 
