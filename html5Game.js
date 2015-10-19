@@ -69,18 +69,19 @@ Paddle.prototype.setY = function(proposedNewY){
 var lPaddle = new Paddle(15,70,60,150);
 var rPaddle = new Paddle(15,70,525,150);
 //Players:
-function Player(paddle,scoreCounterId,fruitCounterId){ //Has to come after paddles are created so that paddles can be assigned to players
+function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
 	this.pressingUp = false;
 	this.pressingDown = false;
 	this.paddle = paddle;
 	this.scoreCounter = document.getElementById(scoreCounterId);
 	this.fruitCounter = document.getElementById(fruitCounterId);
+	this.inventoryDisplay = document.getElementById(inventoryDisplayId);
 	this.numFruit = 0;
 	this.inventory = [];
 }
-var playerL = new Player(lPaddle,"pLScore","pLFruit");
-var playerR = new Player(rPaddle,"pRScore","pRFruit");
+var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
+var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
 //Balls:
 function Ball(width,tether,player){
 	this.w = width;
@@ -170,6 +171,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 				|| thereIsLineCircleContact(crate.x,crate.y,crate.y+crate.w,ballCentreX,ballCentreY,ball.w)){
 					if(ball.owner.inventory.length<3){
 						ball.owner.inventory.push(crate.goodies);
+						ball.owner.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
 					}
 					crates.splice(i,1);
 			}
