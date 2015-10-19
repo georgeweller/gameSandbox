@@ -35,7 +35,7 @@ var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
 var crateWidth = 20;
-var avCrateSpawnTime = 5000;
+var avCrateSpawnTime = 10000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
 /*SETTING UP THE CANVAS*/
@@ -55,7 +55,7 @@ function Paddle(width,height,xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.vUp = 0;
-	this.defaultSpeed = 0.4;
+	this.movingSpeed = 0.4;
 } 
 Paddle.prototype.setY = function(proposedNewY){
 	if(proposedNewY<0){
@@ -150,7 +150,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 					ball.owner.numFruit+=1;
 					ball.owner.fruitCounter.innerHTML = ball.owner.numFruit;
 					if(ball.owner.numFruit===5){
-						ball.owner.paddle.defaultSpeed = 0.6;
+						ball.owner.paddle.movingSpeed = 0.6;
 						ball.owner.paddle.h = 150;
 					}
 				}
@@ -331,6 +331,12 @@ function pointScoredBy(scorer){
 	rPaddle.y = (canvas.height-rPaddle.h)/2;
 	fruit.splice(0,fruit.length);
 	crates.splice(0,crates.length);
+	var opponent = scorer===playerL ? playerR : playerL;
+	if(opponent.numFruit===5){
+		opponent.numFruit===0
+		opponent.paddle.h = 70;
+		opponent.paddle.movingSpeed = 0.4;
+	}
 }
 
 function respondToKey(event){
@@ -384,10 +390,10 @@ function respondToKey(event){
 				if(player.pressingDown){ //If they are pressing up and down
 					player.paddle.vUp = 0;
 				}else{ //If they are only pressing up
-					player.paddle.vUp = player.paddle.defaultSpeed;
+					player.paddle.vUp = player.paddle.movingSpeed;
 				}
 			}else if(player.pressingDown){ //If they are only pressing down
-				player.paddle.vUp = -1 * player.paddle.defaultSpeed;
+				player.paddle.vUp = -1 * player.paddle.movingSpeed;
 			}else{ //If they are not pressing up or down
 				player.paddle.vUp = 0;
 			}
