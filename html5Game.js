@@ -33,6 +33,8 @@ var canvasHeight = 400;
 var paddles = [];
 var defaultPaddleWidth = 15;
 var defaultPaddleHeight = 80;
+var defaultPaddleSpeed = 0.4;
+var players = [];
 var ballStartingSpeed = 0.3;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
@@ -62,7 +64,7 @@ function Paddle(width,height,xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.vUp = 0;
-	this.movingSpeed = 0.4;
+	this.movingSpeed = defaultPaddleSpeed;
 } 
 Paddle.prototype.setY = function(proposedNewY){
 	if(proposedNewY<0){
@@ -89,6 +91,21 @@ function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has 
 	this.inventory = [];
 	this.inventorySelectionNum = 0;
 }
+Player.prototype.changeFruitNumBy = function(amount){
+	var proposedNewNumFruit = this.numFruit+amount;
+	if(proposedNewNumFruit>5){
+		proposedNewNumFruit=5;
+	}else if(proposedNewNumFruit<0){
+		proposedNewNumFruit=0;
+	}
+	this.numFruit = proposedNewNumFruit;
+	this.fruitCounter.innerHTML = this.numFruit;
+	if(this.numFruit===5){
+		this.paddle.h = defaultPaddleHeight*2;
+	}else{
+		this.paddle.h = defaultPaddleHeight;
+	}
+}
 Player.prototype.useItem = function(){
 	if(ball.tetheredTo===null && this.inventory.length>0){
 		if(this.inventory[this.inventorySelectionNum]==="missile"){
@@ -107,16 +124,17 @@ Player.prototype.fireMissile = function(){
 		var missileX = rPaddle.x-missileWidth;
 		var direction = "left";
 	}
-	missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+	missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	if(this.numFruit===5){
 		missileY = this.paddle.y;
-		missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 		missileY = this.paddle.y+this.paddle.h-missileHeight;
-		missiles.push(new Missile(missileX,missileY,direction,this.paddle));
+		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	}
 }
 var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
 var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
+players.push(playerL,playerR);
 //Balls:
 function Ball(width,tether,player){
 	this.w = width;
@@ -184,14 +202,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 			fruitCentreY = fruit[i].y + (fruit[i].w/2);
 			if(thereIsCircleCircleContact(ballCentreX,ballCentreY,ball.w,fruitCentreX,fruitCentreY,fruit[i].w)){
 				fruit.splice(i,1); 
-				if(ball.owner.numFruit<5){
-					ball.owner.numFruit+=1;
-					ball.owner.fruitCounter.innerHTML = ball.owner.numFruit;
-					if(ball.owner.numFruit===5){
-						ball.owner.paddle.movingSpeed = 0.6;
-						ball.owner.paddle.h = 150;
-					}
-				}
+				ball.owner.changeFruitNumBy(1);
 			}
 		};
 	}
@@ -271,12 +282,13 @@ function Crate(xPos,yPos){
 	this.goodies = "missile";
 }
 /*MISSILES*/
-function Missile(xPos,yPos,direction,paddleFiredFrom){
+function Missile(xPos,yPos,direction,paddleFiredFrom,playerFiredBy){
 	this.x = xPos;
 	this.y = yPos;
 	this.w = missileWidth;
 	this.h = missileHeight;
 	this.firedFrom = paddleFiredFrom;
+	this.firedBy = playerFiredBy;
 	if(direction === "left"){
 		this.vLeft = missileSpeed;
 	}else if(direction ==="right"){
@@ -293,6 +305,15 @@ Missile.prototype.checkForImpact = function(){
 			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w+this.w)){
 				missiles.splice(missiles.indexOf(this),1);
 				paddle.h /= 2;
+				for (var i = 0; i < players.length; i++) {
+					if(players[i]!==this.firedBy){
+						if(players[i].numFruit===5){
+							players[i].changeFruitNumBy(-2);
+						}else{
+							players[i].changeFruitNumBy(-1);
+						}
+					}
+				};
 			}
 		}
 	};
@@ -428,14 +449,10 @@ function pointScoredBy(scorer){
 	crates.splice(0,crates.length);
 	var opponent = scorer===playerL ? playerR : playerL;
 	if(opponent.numFruit===5){
-		opponent.numFruit===0
-		opponent.paddle.h = 70;
-		opponent.paddle.movingSpeed = 0.4;
-		opponent.fruitCounter = document.getElementById(fruitCounterId);
+		opponent.changeFruitNumBy(-2);
+	}else{
+		// opponent.changeFruitNumBy(-1);
 	}
-	for (var i = 0; i < paddles.length; i++) {
-		paddles[i].h = defaultPaddleHeight;
-	};
 }
 
 function respondToKey(event){

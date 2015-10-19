@@ -27,6 +27,11 @@ body{
 	float: right;
 }
 
+.board #pLInventory,.board #pRInventory{
+	font-size: 0.5em;
+	vertical-align: top;
+}
+
 #gameCanvas{
 	border: 1px solid black;
 	margin-left: auto;
