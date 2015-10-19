@@ -530,7 +530,7 @@ function test2(){
 /*TO DO LIST*/
 //Make player display areas
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
-//
+//Make it so you lose one fruit per death rather than all five if you die with five (maybe you lose two if you die with five)
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
 
