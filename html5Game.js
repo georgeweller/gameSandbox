@@ -103,7 +103,6 @@ Player.prototype.changeFruitNumBy = function(amount){
 	if(this.numFruit===5){
 		this.paddle.h = defaultPaddleHeight*2;
 	}else{
-		this.paddle.h = defaultPaddleHeight;
 	}
 }
 Player.prototype.useItem = function(){
@@ -302,7 +301,7 @@ Missile.prototype.checkForImpact = function(){
 	for (var i = 0; i < paddles.length; i++) {
 		var paddle = paddles[i];
 		if(paddle!==this.firedFrom){
-			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w+this.w)){
+			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w)){
 				missiles.splice(missiles.indexOf(this),1);
 				paddle.h /= 2;
 				for (var i = 0; i < players.length; i++) {
