@@ -38,6 +38,10 @@ var crateWidth = 20;
 var avCrateSpawnTime = 1000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
+var missileWidth = 50;
+var missileHeight = 10;
+var missileSpeed = 0.5;
+var missiles = [];
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
 if(canvas.getContext){
@@ -79,6 +83,27 @@ function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has 
 	this.inventoryDisplay = document.getElementById(inventoryDisplayId);
 	this.numFruit = 0;
 	this.inventory = [];
+	this.inventorySelectionNum = 0;
+}
+Player.prototype.useItem = function(){
+	if(this.inventory.length>0){
+		if(this.inventory[this.inventorySelectionNum]==="missile"){
+			this.fireMissile();
+		}
+	}
+}
+Player.prototype.fireMissile = function(){
+	var missileY = this.paddle.y+((this.paddle.h-missileHeight)/2);
+	if(this.paddle===lPaddle){
+		var missileX = lPaddle.x+lPaddle.w;
+		var direction = "right";
+	}else if(this.paddle===rPaddle){
+		var missileX = rPaddle.x-missileWidth;
+		var direction = "left";
+	}
+	missiles.push(new Missile(missileX,missileY,direction));
+	this.inventory.splice(this.inventorySelectionNum,1);
+	this.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
 }
 var playerL = new Player(lPaddle,"pLScore","pLFruit","pLInventory");
 var playerR = new Player(rPaddle,"pRScore","pRFruit","pRInventory");
@@ -235,6 +260,18 @@ function Crate(xPos,yPos){
 	this.w = crateWidth;
 	this.goodies = "missile";
 }
+/*MISSILES*/
+function Missile(xPos,yPos,direction){
+	this.x = xPos;
+	this.y = yPos;
+	this.w = missileWidth;
+	this.h = missileHeight;
+	if(direction === "left"){
+		this.vLeft = missileSpeed;
+	}else if(direction ==="right"){
+		this.vLeft = missileSpeed*-1;
+	}
+}
 
 /*GAME FUNCTIONS*/
 start();//Start the game as soon as the page loads
@@ -279,6 +316,7 @@ function update(t){
 	moveBalls(t);
 	generateFruit(t);
 	generateCrate(t);
+	moveMissiles(t);
 }
 
 function draw(firstDraw){
@@ -303,6 +341,10 @@ function draw(firstDraw){
 	 	ctx.fillStyle = "#ae6a31"; //Set fill colour to brown and...
 		ctx.fillRect(crates[i].x,crates[i].y,crates[i].w,crates[i].w); //...draw the crate
 	};
+	for (var i = 0; i < missiles.length; i++) {
+		ctx.fillStyle = "#551a8b"; //Set fill colour to purple and...
+		ctx.fillRect(missiles[i].x,missiles[i].y,missiles[i].w,missiles[i].h); //...draw the missile
+	};
 }
 
 function movePaddles(t){
@@ -320,6 +362,15 @@ function moveBalls(t){
 	}else{
 		ball.setPos(ball.x-(ball.vLeft*t),ball.y-(ball.vUp*t));
 	}
+}
+
+function moveMissiles(t){
+	for (var i = 0; i < missiles.length; i++) {
+		missiles[i].x -= (missiles[i].vLeft*t);
+		if(missiles[i].x<=0 || missiles[i].x >= canvas.width-missiles[i].w){
+			missiles.splice(i,1);
+		}
+	};
 }
 
 function generateFruit(t){
@@ -384,13 +435,17 @@ function respondToKey(event){
 				playerR.pressingDown=true;
 			}
 			if(event.keyCode===68){//If player presses d...
-				if(ball.tetheredTo===lPaddle){//...and the ball is tetherd to the left paddle...
+				if(ball.tetheredTo===lPaddle){//...and the ball is tethered to the left paddle...
 					ball.tetheredTo = null;//...untether the ball
+				}else{
+					playerL.useItem();
 				}
 			}
 			if(event.keyCode===37){//If player presses left...
 				if(ball.tetheredTo===rPaddle){//...and the ball is tethered to the right paddle...
 					ball.tetheredTo = null;//...untether the ball
+				}else{
+					playerR.useItem();
 				}
 			}
 		}else if(event.type==="keyup"){
@@ -447,10 +502,9 @@ function test2(){
 
 
 /*TO DO LIST*/
-//Make the ball change colour when it changes direction
-//Make numFruit decay over time
+//Make it possible for users to create missiles
+//Make missiles interact with paddles
 //Make player display areas
-//Make crates appear
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
 
