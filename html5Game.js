@@ -28,9 +28,10 @@ var delta = 0;
 var lastFrameTimeMS = 0;
 var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
-var canvasWidth = 600;
+var canvasWidth = 700;
 var canvasHeight = 400;
 var paddles = [];
+var defaultPaddleWidth = 15;
 var defaultPaddleHeight = 80;
 var ballStartingSpeed = 0.3;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
@@ -72,8 +73,8 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-var lPaddle = new Paddle(15,defaultPaddleHeight,60,150);
-var rPaddle = new Paddle(15,defaultPaddleHeight,525,150);
+var lPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,60,150);
+var rPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,canvas.width-defaultPaddleWidth-60,150);
 paddles.push(lPaddle,rPaddle);
 //Players:
 function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has to come after paddles are created so that paddles can be assigned to players
