@@ -446,6 +446,7 @@ function pointScoredBy(scorer){
 	rPaddle.y = (canvas.height-rPaddle.h)/2;
 	fruit.splice(0,fruit.length);
 	crates.splice(0,crates.length);
+	missiles.splice(0,missiles.length);
 	var opponent = scorer===playerL ? playerR : playerL;
 	if(opponent.numFruit===5){
 		opponent.changeFruitNumBy(-2);
