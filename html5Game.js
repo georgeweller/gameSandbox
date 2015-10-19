@@ -507,11 +507,6 @@ function respondToKey(event){
 }
 
 /*EVENT LISTENERS*/
-var pauseButton = document.getElementById("pauseButton");
-EventUtil.addHandler(pauseButton,"click",stop);
-var startButton = document.getElementById("startButton");
-EventUtil.addHandler(startButton,"click",start);
-//Respond to keydown and keyup events on the window:
 EventUtil.addHandler(window,"keydown",respondToKey);
 EventUtil.addHandler(window,"keyup",respondToKey);
 

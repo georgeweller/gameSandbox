@@ -4,11 +4,12 @@
 		<link rel="stylesheet" type="text/css" href="html5Game.css">
 	</head>
 	<body>
-		<button id="startButton">START</button>
-		<button id="pauseButton">PAUSE</button>
-		<p id="scoreBoard">Player 1: <span id="pLScore">0</span> Fruit:<span id="pLFruit">0</span> Player 2: <span id="pRScore">0</span> Fruit:<span id="pRFruit">0</span></p>
-		<p id="inventories"><span id="pLInventory">[]</span><span id="pRInventory">[]</span></p>
-		<canvas id="gameCanvas">Failed to load canvas.</canvas>
+		<div id="game">
+			<div class="board"><span class="left">Player 1: <span id="pLScore">0</span></span><span class="right">Player 2: <span id="pRScore">0</span></span></div>
+			<div class="board"><span class="left">Fruit: <span id="pLFruit">0</span></span><span class="right">Fruit: <span id="pRFruit">0</span></span></div>
+			<div class="board"><span class="left"><span id="pLInventory">[]</span></span><span class="right"><span id="pRInventory">[]</span></span></div>
+			<canvas id="gameCanvas">Failed to load canvas.</canvas>
+		</div>
 		<script type="text/javascript" src="html5Game.js"></script>
 	</body>
 </html>
