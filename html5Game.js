@@ -32,8 +32,12 @@ var canvasWidth = 600;
 var canvasHeight = 400;
 var ballStartingSpeed = 0.3;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
+var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
+var crateWidth = 20;
+var avCrateSpawnTime = 5000;
 var fruit = [];//An array to keep track of all the fruit on the screen
+var crates = [];//An array to keep track of all the crates on the screen
 /*SETTING UP THE CANVAS*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
 if(canvas.getContext){
@@ -202,7 +206,13 @@ var ball = new Ball(15,lPaddle,playerL);
 function Fruit(xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
-	this.w = 20;
+	this.w = fruitWidth;
+}
+/*CRATES*/
+function Crate(xPos,yPos){
+	this.x = xPos;
+	this.y = yPos;
+	this.w = crateWidth;
 }
 
 /*GAME FUNCTIONS*/
@@ -247,6 +257,7 @@ function update(t){
 	movePaddles(t);	
 	moveBalls(t);
 	generateFruit(t);
+	generateCrate(t);
 }
 
 function draw(firstDraw){
@@ -263,10 +274,14 @@ function draw(firstDraw){
 	ctx.fill();
 	for (var i = 0; i < fruit.length; i+=1) {
 	 	ctx.beginPath();
-		ctx.arc(fruit[i].x+(fruit[i].w/2),fruit[i].y+(fruit[i].w/2),fruit[i].w/2,0,2*Math.PI,false);//Draw the ball
+		ctx.arc(fruit[i].x+(fruit[i].w/2),fruit[i].y+(fruit[i].w/2),fruit[i].w/2,0,2*Math.PI,false);//Draw the fruit
 		ctx.fillStyle = "#00ff00";
 		ctx.fill();
 	};	
+	for (var i = 0; i < crates.length; i++) {
+	 	ctx.fillStyle = "#ae6a31"; //Set fill colour to brown and...
+		ctx.fillRect(crates[i].x,crates[i].y,crates[i].w,crates[i].w); //...draw the crate
+	};
 }
 
 function movePaddles(t){
@@ -288,11 +303,22 @@ function moveBalls(t){
 
 function generateFruit(t){
 	if(fruit.length<3 && ball.tetheredTo === null){
-		var randomNumber = Math.random()*(avFruitSpawnTime);
-		if(randomNumber>=0 && randomNumber<=t){
-			var newFruitX = (Math.random()*(rPaddle.x-ball.w-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
-			var newFruitY = Math.random()*(canvas.height-ball.w);
+		var randomNumber = Math.random()*avFruitSpawnTime;
+		if(randomNumber<=t){
+			var newFruitX = (Math.random()*(rPaddle.x-fruitWidth-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
+			var newFruitY = Math.random()*(canvas.height-fruitWidth);
 			fruit.push(new Fruit(newFruitX,newFruitY));
+		}
+	}
+}
+
+function generateCrate(t){
+	if(crates.length<2 && ball.tetheredTo === null){
+		var randomNumber = Math.random()*avCrateSpawnTime;
+		if(randomNumber<=t){
+			var newCrateX = (Math.random()*(rPaddle.x-crateWidth-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
+			var newCrateY = Math.random()*canvas.height-crateWidth;
+			crates.push(new Crate(newCrateX,newCrateY));
 		}
 	}
 }
@@ -304,6 +330,7 @@ function pointScoredBy(scorer){
 	lPaddle.y = (canvas.height-lPaddle.h)/2;
 	rPaddle.y = (canvas.height-rPaddle.h)/2;
 	fruit.splice(0,fruit.length);
+	crates.splice(0,crates.length);
 }
 
 function respondToKey(event){
@@ -389,10 +416,7 @@ function test2(){
 }
 
 /*BUG RECORD*/
-//Just after changing it so that paddles impart momentum to the ball, the ball dissapeared mid game. Console.log showed that 
-//ball.x and ball.vLeft were both NaN. Setting them both through the console to numbers made the ball reappear. Also I think the ball
-//hit the paddle just before it disappeared.
-//I managed to make the ball go completely vertical directly next to the paddle.
+
 
 /*TO DO LIST*/
 //Make the ball change colour when it changes direction
