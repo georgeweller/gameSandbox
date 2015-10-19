@@ -111,7 +111,7 @@ Player.prototype.useItem = function(){
 			this.fireMissile();
 		}
 		this.inventory.splice(this.inventorySelectionNum,1);
-		this.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
+		this.inventoryDisplay.innerHTML = "["+this.inventory+"]";
 	}
 }
 Player.prototype.fireMissile = function(){
@@ -449,9 +449,12 @@ function pointScoredBy(scorer){
 	var opponent = scorer===playerL ? playerR : playerL;
 	if(opponent.numFruit===5){
 		opponent.changeFruitNumBy(-2);
-	}else{
-		// opponent.changeFruitNumBy(-1);
 	}
+	for (var i = 0; i < paddles.length; i++) {
+		if(paddles[i].numFruit!==5){
+	 		paddles[i].h = defaultPaddleHeight;	
+ 		}
+	};
 }
 
 function respondToKey(event){
