@@ -40,9 +40,9 @@ var players = [];
 var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
-var avFruitSpawnTime = 10000;
+var avFruitSpawnTime = 5000;
 var crateWidth = 20;
-var avCrateSpawnTime = 1000;
+var avCrateSpawnTime = 5000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
 var missileWidth = 50;
@@ -405,6 +405,7 @@ function draw(firstDraw){
 	for (var i = 0; i < players.length; i++) {
 		var inventoryCanvas = players[i].inventoryDisplayCanvas;
 		var inventoryContext = players[i].inventoryDisplayContext;
+		inventoryContext.lineWidth = 2;
 		inventoryContext.clearRect(0,0,inventoryCanvas.width,inventoryCanvas.height);
 		var fruitDisplayRadius = inventoryCanvas.width/16;
 		var fruitDisplayCentreX = 3*fruitDisplayRadius;
@@ -423,11 +424,15 @@ function draw(firstDraw){
 		var itemDisplayX = (inventoryCanvas.width - itemDisplayWidth)/2;
 		for (var k = 0; k < 3; k++) {
 			inventoryContext.strokeStyle = "#ae6a31";
+			if(k === players[i].inventorySelectionNum && players[i].inventory.length>0){
+				inventoryContext.lineWidth = 5;
+			}
 			var itemDisplayY = (3*fruitDisplayRadius)+(itemDisplayWidth/4)+(k*((5/4)*itemDisplayWidth));
 			inventoryContext.strokeRect(itemDisplayX,itemDisplayY,itemDisplayWidth,itemDisplayWidth);
+			inventoryContext.lineWidth = 2;
 			if(k<players[i].inventory.length){
 				if(players[i].inventory[k]==="missile"){
-					inventoryContext.fillStyle = "#551a8b";
+					inventoryContext.fillStyle = "#551a8b";					
 					inventoryContext.fillRect(itemDisplayX+((itemDisplayWidth-missileWidth)/2),itemDisplayY+((itemDisplayWidth-missileHeight)/2),missileWidth,missileHeight);
 				}
 			}
