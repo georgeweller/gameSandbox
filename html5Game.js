@@ -42,7 +42,7 @@ var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
 var crateWidth = 20;
-var avCrateSpawnTime = 5000;
+var avCrateSpawnTime = 1000;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crates = [];//An array to keep track of all the crates on the screen
 var missileWidth = 50;
@@ -93,13 +93,12 @@ var lPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,60,150);
 var rPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,canvas.width-defaultPaddleWidth-60,150);
 paddles.push(lPaddle,rPaddle);
 //Players:
-function Player(paddle,scoreCounterId,inventoryDisplayId,inventoryDisplayCanvas,inventoryDisplayContext){ //Has to come after paddles are created so that paddles can be assigned to players
+function Player(paddle,scoreCounterId,inventoryDisplayCanvas,inventoryDisplayContext){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
 	this.pressingUp = false;
 	this.pressingDown = false;
 	this.paddle = paddle;
 	this.scoreCounter = document.getElementById(scoreCounterId);
-	this.inventoryDisplay = document.getElementById(inventoryDisplayId);
 	this.inventoryDisplayCanvas = inventoryDisplayCanvas;
 	this.inventoryDisplayContext = inventoryDisplayContext;
 	this.numFruit = 0;
@@ -124,7 +123,6 @@ Player.prototype.useItem = function(){
 			this.fireMissile();
 		}
 		this.inventory.splice(this.inventorySelectionNum,1);
-		this.inventoryDisplay.innerHTML = "["+this.inventory+"]";
 	}
 }
 Player.prototype.fireMissile = function(){
@@ -144,8 +142,8 @@ Player.prototype.fireMissile = function(){
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	}
 }
-var playerL = new Player(lPaddle,"pLScore","pLMissiles",pLInventory,pLICtx);
-var playerR = new Player(rPaddle,"pRScore","pRMissiles",pRInventory,pRICtx);
+var playerL = new Player(lPaddle,"pLScore",pLInventory,pLICtx);
+var playerR = new Player(rPaddle,"pRScore",pRInventory,pRICtx);
 players.push(playerL,playerR);
 //Balls:
 function Ball(width,tether,player){
@@ -229,7 +227,6 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 				|| thereIsLineCircleContact(crate.x,crate.y,crate.y+crate.w,ballCentreX,ballCentreY,ball.w)){
 					if(ball.owner.inventory.length<3){
 						ball.owner.inventory.push(crate.goodies);
-						ball.owner.inventoryDisplay.innerHTML = "["+ball.owner.inventory+"]";
 					}
 					crates.splice(i,1);
 			}
@@ -295,6 +292,7 @@ function Crate(xPos,yPos){
 }
 /*MISSILES*/
 function Missile(xPos,yPos,direction,paddleFiredFrom,playerFiredBy){
+	this.itemType = "missile";
 	this.x = xPos;
 	this.y = yPos;
 	this.w = missileWidth;
@@ -408,8 +406,6 @@ function draw(firstDraw){
 		var inventoryCanvas = players[i].inventoryDisplayCanvas;
 		var inventoryContext = players[i].inventoryDisplayContext;
 		inventoryContext.clearRect(0,0,inventoryCanvas.width,inventoryCanvas.height);
-		// inventoryContext.fillStyle = "#d3d3d3";
-		// inventoryContext.fillRect(0,0,inventoryCanvas.width,inventoryCanvas.height);
 		var fruitDisplayRadius = inventoryCanvas.width/16;
 		var fruitDisplayCentreX = 3*fruitDisplayRadius;
 		for (var j = 0; j < 5; j++) { //Have to use j here because we are already in another for loop
@@ -422,7 +418,20 @@ function draw(firstDraw){
 			}else{
 				inventoryContext.stroke();
 			}	
-		};		
+		};
+		var itemDisplayWidth = (inventoryCanvas.height - (3*fruitDisplayRadius))/4;
+		var itemDisplayX = (inventoryCanvas.width - itemDisplayWidth)/2;
+		for (var k = 0; k < 3; k++) {
+			inventoryContext.strokeStyle = "#ae6a31";
+			var itemDisplayY = (3*fruitDisplayRadius)+(itemDisplayWidth/4)+(k*((5/4)*itemDisplayWidth));
+			inventoryContext.strokeRect(itemDisplayX,itemDisplayY,itemDisplayWidth,itemDisplayWidth);
+			if(k<players[i].inventory.length){
+				if(players[i].inventory[k]==="missile"){
+					inventoryContext.fillStyle = "#551a8b";
+					inventoryContext.fillRect(itemDisplayX+((itemDisplayWidth-missileWidth)/2),itemDisplayY+((itemDisplayWidth-missileHeight)/2),missileWidth,missileHeight);
+				}
+			}
+		};
 	};
 }
 
@@ -574,11 +583,12 @@ function test2(){
 }
 
 /*BUG RECORD*/
-//Sometimes it says a player has missiles but they dont
-//Paddle hit detection on missiles often doesn't work
 
 /*TO DO LIST*/
-//Make player display areas
+//Add weapons to player inventory canvases
+//Show which weapon is currently selected
+//Make it possible to cycle through selected weapons
+//Make paddle speed depend on number of fruit?
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
@@ -596,3 +606,4 @@ function test2(){
 //Multiball
 //Full/partial barrier behind paddle
 //Paddle can move in two dimensions
+//Shield?
