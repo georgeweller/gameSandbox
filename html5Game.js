@@ -47,6 +47,8 @@ var crateWidth = 20;
 var avCrateSpawnTime = 3000;
 var maxCrates = 5;
 var crates = [];//An array to keep track of all the crates on the screen
+var barrierWidth = 20;
+var barriers = [];
 var missileWidth = 50;
 var missileHeight = 10;
 var missileSpeed = 0.5;
@@ -213,6 +215,7 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	checkBallPaddleContact(this,rPaddle);
 	checkBallFruitContact(this);
 	checkBallCrateContact(this);
+	checkBallBarrierContact(this);
 	if(proposedNewX<0){
 		proposedNewX = 0;//Dont' let the ball leave the left hand side of the canvas
 		pointScoredBy(playerR);
@@ -272,6 +275,20 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 						ball.owner.inventory.push(crate.goodies);
 					}
 					crates.splice(i,1);
+			}
+		};
+	}
+	function checkBallBarrierContact(ball){
+		var ballCentreX = ball.x + (ball.w/2);
+		var ballCentreY = ball.y + (ball.w/2);
+		for (var i = 0; i < barriers.length; i++) {
+			var barrier = barriers[i];
+			if(thereIsLineCircleContact(barrier.y,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)//Top side of barrier
+				|| thereIsLineCircleContact(barrier.x+barrier.w,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)//Right side of barrier
+				|| thereIsLineCircleContact(barrier.y+barrier.w,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)//Bottom side of barrier
+				|| thereIsLineCircleContact(barrier.x,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)){
+					ball.changeXDirection();
+					barriers.splice(i,1);
 			}
 		};
 	}
@@ -338,6 +355,14 @@ function Crate(xPos,yPos){
 		this.goodies = "paddleStretcher";
 	}
 }
+/*BARRIER PIECES*/ 
+function Barrier(xPos,yPos){
+	this.x = xPos;
+	this.y = yPos;
+	this.w = barrierWidth;
+}
+var newBarrier = new Barrier(100,150);
+barriers.push(newBarrier);
 /*MISSILES*/
 function Missile(xPos,yPos,direction,paddleFiredFrom,playerFiredBy){
 	this.itemType = "missile";
@@ -427,9 +452,9 @@ function draw(firstDraw){
 	if(firstDraw===1){
 	}
 	ctx.clearRect(0,0,canvas.width,canvas.height); //Clear the canvas
-	ctx.fillStyle = "#000000"; //Set fill colour to red and...
+	ctx.fillStyle = "#000000"; //Set fill colour to black and...
 	ctx.fillRect(lPaddle.x,lPaddle.y,lPaddle.w,lPaddle.h); //...draw the left paddle
-	ctx.fillStyle = "#000000"; //Set fill colour to blue and...
+	ctx.fillStyle = "#000000"; //Set fill colour to black and...
 	ctx.fillRect(rPaddle.x,rPaddle.y,rPaddle.w,rPaddle.h); //...draw the right paddle
 	ctx.beginPath();
 	ctx.arc(ball.x+(ball.w/2),ball.y+(ball.w/2),ball.w/2,0,2*Math.PI,false);//Draw the ball
@@ -448,6 +473,10 @@ function draw(firstDraw){
 	for (var i = 0; i < missiles.length; i++) {
 		ctx.fillStyle = "#551a8b"; //Set fill colour to purple and...
 		ctx.fillRect(missiles[i].x,missiles[i].y,missiles[i].w,missiles[i].h); //...draw the missile
+	};
+	for (var i = 0; i < barriers.length; i++) {
+		ctx.fillStyle = "#63afae"; //Set fill colour to and...
+		ctx.fillRect(barriers[i].x,barriers[i].y,barriers[i].w,barriers[i].w); //...draw the barrier
 	};
 	//Player inventory canvases:
 	for (var i = 0; i < players.length; i++) {
@@ -647,9 +676,7 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Make ball.changeDirection() - which also changes owner
-//Make BarrierPiece object that disappears when the ball hits it
-//Make Barrier object that is a set of BarrierPieces
+//Make Barrier object that disappears when the ball bounces off it
 //Put barriers in crates
 //Make placeBarrier() method
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
