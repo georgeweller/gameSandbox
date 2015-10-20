@@ -117,12 +117,26 @@ Player.prototype.changeFruitNumBy = function(amount){
 		this.paddle.h = defaultPaddleHeight*2;
 	}
 }
+Player.prototype.changeSelectedItem = function(itemUsed){
+	if(this.inventory.length===0){
+		this.inventorySelectionNum = 0;
+	}else if(itemUsed){
+		if(this.inventorySelectionNum>this.inventory.length-1){
+			this.inventorySelectionNum = this.inventory.length -1;
+		}
+	}else if(this.inventorySelectionNum<this.inventory.length-1){
+		this.inventorySelectionNum+=1;
+	}else{
+		this.inventorySelectionNum=0;
+	}
+}
 Player.prototype.useItem = function(){
 	if(ball.tetheredTo===null && this.inventory.length>0){
 		if(this.inventory[this.inventorySelectionNum]==="missile"){
 			this.fireMissile();
 		}
 		this.inventory.splice(this.inventorySelectionNum,1);
+		this.changeSelectedItem(true);
 	}
 }
 Player.prototype.fireMissile = function(){
@@ -542,6 +556,12 @@ function respondToKey(event){
 					playerR.useItem();
 				}
 			}
+			if(event.keyCode===65){
+				playerL.changeSelectedItem(false);
+			}
+			if(event.keyCode===39){
+				playerR.changeSelectedItem(false);
+			}
 		}else if(event.type==="keyup"){
 			if(event.keyCode===87){
 				playerL.pressingUp=false;
@@ -590,8 +610,6 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Add weapons to player inventory canvases
-//Show which weapon is currently selected
 //Make it possible to cycle through selected weapons
 //Make paddle speed depend on number of fruit?
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
