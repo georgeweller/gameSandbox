@@ -349,10 +349,12 @@ function Crate(xPos,yPos){
 	this.y = yPos;
 	this.w = crateWidth;
 	this.randomNum = Math.random();
-	if(this.randomNum<0.75){
+	if(this.randomNum<0.5){
 		this.goodies = "missile";
-	}else{
+	}else if(this.randomNum<0.75){
 		this.goodies = "paddleStretcher";
+	}else{
+		this.goodies = "barriers";
 	}
 }
 /*BARRIER PIECES*/ 
@@ -676,7 +678,6 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Make Barrier object that disappears when the ball bounces off it
 //Put barriers in crates
 //Make placeBarrier() method
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
