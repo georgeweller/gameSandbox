@@ -35,7 +35,7 @@ var inventoryHeight = canvasHeight;
 var paddles = [];
 var defaultPaddleWidth = 15;
 var defaultPaddleHeight = 80;
-var defaultPaddleSpeed = 0.4;
+var defaultPaddleSpeed = 0.2;
 var players = [];
 var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
@@ -113,9 +113,7 @@ Player.prototype.changeFruitNumBy = function(amount){
 		proposedNewNumFruit=0;
 	}
 	this.numFruit = proposedNewNumFruit;
-	if(this.numFruit===5){
-		this.paddle.h = defaultPaddleHeight*2;
-	}
+	this.paddle.movingSpeed = defaultPaddleSpeed + (this.numFruit*0.1);
 }
 Player.prototype.changeSelectedItem = function(itemUsed){
 	if(this.inventory.length===0){
@@ -150,7 +148,7 @@ Player.prototype.fireMissile = function(){
 	}
 	missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	if(this.numFruit===5){
-		missileY = this.paddle.y;
+		missileY = this.paddle.y+((this.paddle.h-missileHeight)/2);
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 		missileY = this.paddle.y+this.paddle.h-missileHeight;
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
