@@ -40,10 +40,12 @@ var players = [];
 var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
-var avFruitSpawnTime = 5000;
-var crateWidth = 20;
-var avCrateSpawnTime = 5000;
+var avFruitSpawnTime = 3000;
+var maxFruit = 3;
 var fruit = [];//An array to keep track of all the fruit on the screen
+var crateWidth = 20;
+var avCrateSpawnTime = 3000;
+var maxCrates = 3;
 var crates = [];//An array to keep track of all the crates on the screen
 var missileWidth = 50;
 var missileHeight = 10;
@@ -89,6 +91,17 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
+Paddle.prototype.multiplyHeightBy = function(amount){
+	var proposedNewHeight = this.h * amount; //Proposed new height = current height x amount
+	if(proposedNewHeight===0){ //If it is zero, set it to the min
+		var proposedNewHeight = defaultPaddleHeight/4;
+	}else if(proposedNewHeight<defaultPaddleHeight/4){ //If it is less than the min, set it to zero
+		proposedNewHeight = 0; 
+	}else if(proposedNewHeight>canvas.height){
+		proposedNewHeight = canvas.height; //If it is taller than the canvas, set it to the canvas height
+	}
+	this.h = proposedNewHeight;
+}
 var lPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,60,150);
 var rPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,canvas.width-defaultPaddleWidth-60,150);
 paddles.push(lPaddle,rPaddle);
@@ -132,6 +145,8 @@ Player.prototype.useItem = function(){
 	if(ball.tetheredTo===null && this.inventory.length>0){
 		if(this.inventory[this.inventorySelectionNum]==="missile"){
 			this.fireMissile();
+		}else if(this.inventory[this.inventorySelectionNum]==="paddleStretcher"){
+			this.strechPaddle();
 		}
 		this.inventory.splice(this.inventorySelectionNum,1);
 		this.changeSelectedItem(true);
@@ -153,6 +168,9 @@ Player.prototype.fireMissile = function(){
 		missileY = this.paddle.y+this.paddle.h-missileHeight;
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	}
+}
+Player.prototype.strechPaddle = function(){
+	this.paddle.multiplyHeightBy(2);
 }
 var playerL = new Player(lPaddle,"pLScore",pLInventory,pLICtx);
 var playerR = new Player(rPaddle,"pRScore",pRInventory,pRICtx);
@@ -300,7 +318,12 @@ function Crate(xPos,yPos){
 	this.x = xPos;
 	this.y = yPos;
 	this.w = crateWidth;
-	this.goodies = "missile";
+	this.randomNum = Math.random();
+	if(this.randomNum<0.5){
+		this.goodies = "missile";
+	}else{
+		this.goodies = "paddleStretcher";
+	}
 }
 /*MISSILES*/
 function Missile(xPos,yPos,direction,paddleFiredFrom,playerFiredBy){
@@ -326,7 +349,7 @@ Missile.prototype.checkForImpact = function(){
 		if(paddle!==this.firedFrom){
 			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w)){
 				missiles.splice(missiles.indexOf(this),1);
-				paddle.h /= 2;
+				paddle.multiplyHeightBy(0.5);
 				for (var i = 0; i < players.length; i++) {
 					if(players[i]!==this.firedBy){
 						if(players[i].numFruit===5){
@@ -446,6 +469,9 @@ function draw(firstDraw){
 				if(players[i].inventory[k]==="missile"){
 					inventoryContext.fillStyle = "#551a8b";					
 					inventoryContext.fillRect(itemDisplayX+((itemDisplayWidth-missileWidth)/2),itemDisplayY+((itemDisplayWidth-missileHeight)/2),missileWidth,missileHeight);
+				}else if(players[i].inventory[k]==="paddleStretcher"){
+					inventoryContext.fillStyle = "#000000";					
+					inventoryContext.fillRect(itemDisplayX+(itemDisplayWidth/2)-2,itemDisplayY+(itemDisplayWidth/2)-20,4,40);
 				}
 			}
 		};
@@ -477,7 +503,7 @@ function moveMissiles(t){
 }
 
 function generateFruit(t){
-	if(fruit.length<3 && ball.tetheredTo === null){
+	if(fruit.length<maxFruit && ball.tetheredTo === null){
 		var randomNumber = Math.random()*avFruitSpawnTime;
 		if(randomNumber<=t){
 			var newFruitX = (Math.random()*(rPaddle.x-fruitWidth-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
@@ -488,7 +514,7 @@ function generateFruit(t){
 }
 
 function generateCrate(t){
-	if(crates.length<2 && ball.tetheredTo === null){
+	if(crates.length<maxCrates && ball.tetheredTo === null){
 		var randomNumber = Math.random()*avCrateSpawnTime;
 		if(randomNumber<=t){
 			var newCrateX = (Math.random()*(rPaddle.x-crateWidth-(lPaddle.x+lPaddle.w)))+lPaddle.x+lPaddle.w;
@@ -608,8 +634,7 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Make score board prettier
-//Add instructions
+//Move paddle size changing to its own function
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
