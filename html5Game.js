@@ -202,6 +202,10 @@ function Ball(width,tether,player){
 		}
 	}
 }
+Ball.prototype.changeXDirection = function(){
+	ball.vLeft*=-1;
+	ball.owner = ball.vLeft < 0 ? playerL : playerR;
+}
 Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position of ball, making sure it is within the canvas and reversed ball direction if needed
 	var proposedCentreX = proposedNewX+(this.w/2);
 	var proposedCentreY = proposedNewY+(this.w/2);
@@ -226,14 +230,12 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 	function checkBallPaddleContact(ball,paddle){
 		if(ball.vLeft>0 && thereIsLineCircleContact(paddle.x+paddle.w,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			//If hits right side of paddle while going left, reverse horizontal direction
-			ball.vLeft*=-1;
-			ball.owner = ball.vLeft < 0 ? playerL : playerR;
+			ball.changeXDirection();
 			ball.vUp+=(paddle.vUp/10);
 		}
 		if(ball.vLeft<0 && thereIsLineCircleContact(paddle.x,paddle.y,paddle.y+paddle.h,proposedCentreX,proposedCentreY,ball.w)){
 			//If hits left side of paddle while going right, reverse horizontal direction
-			ball.vLeft*=-1;
-			ball.owner = ball.vLeft < 0 ? playerL : playerR;
+			ball.changeXDirection();
 			ball.vUp+=(paddle.vUp/10);
 		}
 		if(ball.vUp>0 && thereIsLineCircleContact(paddle.y+paddle.h,paddle.x,paddle.x+paddle.w,proposedCentreY,proposedCentreX,ball.w)){
@@ -645,6 +647,11 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
+//Make ball.changeDirection() - which also changes owner
+//Make BarrierPiece object that disappears when the ball hits it
+//Make Barrier object that is a set of BarrierPieces
+//Put barriers in crates
+//Make placeBarrier() method
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
