@@ -608,8 +608,8 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Make it possible to cycle through selected weapons
-//Make paddle speed depend on number of fruit?
+//Make score board prettier
+//Add instructions
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
