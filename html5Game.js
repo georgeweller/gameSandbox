@@ -41,11 +41,11 @@ var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 3000;
-var maxFruit = 3;
+var maxFruit = 4;
 var fruit = [];//An array to keep track of all the fruit on the screen
 var crateWidth = 20;
 var avCrateSpawnTime = 3000;
-var maxCrates = 3;
+var maxCrates = 5;
 var crates = [];//An array to keep track of all the crates on the screen
 var missileWidth = 50;
 var missileHeight = 10;
@@ -91,16 +91,24 @@ Paddle.prototype.setY = function(proposedNewY){
 		this.y = proposedNewY;
 	}
 };
-Paddle.prototype.multiplyHeightBy = function(amount){
-	var proposedNewHeight = this.h * amount; //Proposed new height = current height x amount
-	if(proposedNewHeight===0){ //If it is zero, set it to the min
-		var proposedNewHeight = defaultPaddleHeight/4;
-	}else if(proposedNewHeight<defaultPaddleHeight/4){ //If it is less than the min, set it to zero
-		proposedNewHeight = 0; 
-	}else if(proposedNewHeight>canvas.height){
-		proposedNewHeight = canvas.height; //If it is taller than the canvas, set it to the canvas height
+Paddle.prototype.changeHeight = function(direction){
+	if(direction==="up"){ //If increasing height...
+		if(this.h===0){ //If currently zero...
+			this.h = defaultPaddleHeight/4; //...go to a quater of default.
+		}else if(this.h<defaultPaddleHeight){//Otherwise, if less than default...
+			this.h*=2;//...double it.
+		}else if(this.h<=canvas.height-defaultPaddleHeight){
+			this.h += defaultPaddleHeight;
+		}
+	}else if(direction==="down"){
+		if(this.h>defaultPaddleHeight){
+			this.h -= defaultPaddleHeight;
+		}else if(this.h===defaultPaddleHeight/4){
+			this.h=0;
+		}else{
+			this.h/=2;
+		}
 	}
-	this.h = proposedNewHeight;
 }
 var lPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,60,150);
 var rPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,canvas.width-defaultPaddleWidth-60,150);
@@ -170,9 +178,9 @@ Player.prototype.fireMissile = function(){
 	}
 }
 Player.prototype.strechPaddle = function(){
-	this.paddle.multiplyHeightBy(2);
+	this.paddle.changeHeight("up");
 	if(this.numFruit===5){
-		this.paddle.multiplyHeightBy(2);
+		this.paddle.changeHeight("up");
 	}
 }
 var playerL = new Player(lPaddle,"pLScore",pLInventory,pLICtx);
@@ -352,7 +360,7 @@ Missile.prototype.checkForImpact = function(){
 		if(paddle!==this.firedFrom){
 			if(this.y>(paddle.y-this.h) && this.y<(paddle.y+paddle.h+this.h) && this.x>(paddle.x-this.w) && this.x<(paddle.x+paddle.w)){
 				missiles.splice(missiles.indexOf(this),1);
-				paddle.multiplyHeightBy(0.5);
+				paddle.changeHeight("down");
 				for (var i = 0; i < players.length; i++) {
 					if(players[i]!==this.firedBy){
 						if(players[i].numFruit===5){
@@ -642,15 +650,15 @@ function test2(){
 //Make player names editable (with a Player.name property to record them)
 
 /*WEAPON/ITEM IDEAS*/
-//Speed up own paddle
-//Slow down oponent's paddle
+//[Controlled by fruit number] Speed up own paddle
+//[Controlled by fruit number] Slow down oponent's paddle
 //Barrier (that breaks when hit)
 //One way barrier (could be suped up version of barrier)
-//DONE - Missile
+//[DONE] Missile
 //Telekinesis (control ball while it moves through the air)
 //Reverse ball direction
 //Reinforced/larger ball that can break through barriers
-//DONE - Larger paddle
+//[DONE] Larger paddle
 //Two paddles (maybe one slightly forward and they mirror each other's movement)
 //Multiball
 //Full/partial barrier behind paddle
