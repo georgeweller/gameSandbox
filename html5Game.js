@@ -171,6 +171,9 @@ Player.prototype.fireMissile = function(){
 }
 Player.prototype.strechPaddle = function(){
 	this.paddle.multiplyHeightBy(2);
+	if(this.numFruit===5){
+		this.paddle.multiplyHeightBy(2);
+	}
 }
 var playerL = new Player(lPaddle,"pLScore",pLInventory,pLICtx);
 var playerR = new Player(rPaddle,"pRScore",pRInventory,pRICtx);
@@ -634,7 +637,6 @@ function test2(){
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Move paddle size changing to its own function
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
@@ -644,11 +646,12 @@ function test2(){
 //Slow down oponent's paddle
 //Barrier (that breaks when hit)
 //One way barrier (could be suped up version of barrier)
-//Missile
+//DONE - Missile
 //Telekinesis (control ball while it moves through the air)
 //Reverse ball direction
 //Reinforced/larger ball that can break through barriers
-//Larger paddle/ Two paddles (maybe one slightly forward and they mirror each other's movement)
+//DONE - Larger paddle
+//Two paddles (maybe one slightly forward and they mirror each other's movement)
 //Multiball
 //Full/partial barrier behind paddle
 //Paddle can move in two dimensions
