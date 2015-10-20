@@ -126,7 +126,7 @@ Player.prototype.useItem = function(){
 	}
 }
 Player.prototype.fireMissile = function(){
-	var missileY = this.paddle.y+((this.paddle.h-missileHeight)/2);
+	var missileY = this.paddle.y;
 	if(this.paddle===lPaddle){
 		var missileX = lPaddle.x+lPaddle.w;
 		var direction = "right";
