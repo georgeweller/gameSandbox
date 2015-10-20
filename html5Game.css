@@ -35,7 +35,7 @@ body{
 #pLInventory,#pRInventory{
 	background-color: white;
 	display: inline-block;
-	border: 5px solid black;
+	border: 1px solid black;
 }
 
 #gameCanvas{

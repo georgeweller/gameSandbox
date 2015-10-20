@@ -30,12 +30,14 @@ var numUpdateSteps = 0;
 var frameID; //This will be set to the frameID of the current animation frame, so that it can be used to cancel the animation frame
 var canvasWidth = 700;
 var canvasHeight = 400;
+var inventoryWidth = 150;
+var inventoryHeight = canvasHeight;
 var paddles = [];
 var defaultPaddleWidth = 15;
 var defaultPaddleHeight = 80;
 var defaultPaddleSpeed = 0.4;
 var players = [];
-var ballStartingSpeed = 0.3;
+var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
 var fruitWidth = 20;
 var avFruitSpawnTime = 10000;
@@ -47,15 +49,27 @@ var missileWidth = 50;
 var missileHeight = 10;
 var missileSpeed = 0.5;
 var missiles = [];
-/*SETTING UP THE CANVAS*/
+/*SETTING UP THE CANVASES*/
 var canvas = document.getElementById('gameCanvas');//Get a reference to the canvas
 if(canvas.getContext){
 	var ctx = canvas.getContext('2d');//Generate a context and get a reference to the context
 }
-setupCanvas();
-function setupCanvas(){
+var pLInventory = document.getElementById('pLInventory');//Get a reference to the canvas
+if(pLInventory.getContext){
+	var pLICtx = pLInventory.getContext('2d');//Generate a context and get a reference to the context
+}
+var pRInventory = document.getElementById('pRInventory');//Get a reference to the canvas
+if(pRInventory.getContext){
+	var pRICtx = pRInventory.getContext('2d');//Generate a context and get a reference to the context
+}
+setupCanvases();
+function setupCanvases(){
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
+	pLInventory.width = inventoryWidth;
+	pLInventory.height = inventoryHeight;
+	pRInventory.width = inventoryWidth;
+	pRInventory.height = inventoryHeight;
 }
 //Paddles:
 function Paddle(width,height,xPos,yPos){
@@ -79,14 +93,15 @@ var lPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,60,150);
 var rPaddle = new Paddle(defaultPaddleWidth,defaultPaddleHeight,canvas.width-defaultPaddleWidth-60,150);
 paddles.push(lPaddle,rPaddle);
 //Players:
-function Player(paddle,scoreCounterId,fruitCounterId,inventoryDisplayId){ //Has to come after paddles are created so that paddles can be assigned to players
+function Player(paddle,scoreCounterId,inventoryDisplayId,inventoryDisplayCanvas,inventoryDisplayContext){ //Has to come after paddles are created so that paddles can be assigned to players
 	this.score = 0;
 	this.pressingUp = false;
 	this.pressingDown = false;
 	this.paddle = paddle;
 	this.scoreCounter = document.getElementById(scoreCounterId);
-	this.fruitCounter = document.getElementById(fruitCounterId);
 	this.inventoryDisplay = document.getElementById(inventoryDisplayId);
+	this.inventoryDisplayCanvas = inventoryDisplayCanvas;
+	this.inventoryDisplayContext = inventoryDisplayContext;
 	this.numFruit = 0;
 	this.inventory = [];
 	this.inventorySelectionNum = 0;
@@ -99,7 +114,6 @@ Player.prototype.changeFruitNumBy = function(amount){
 		proposedNewNumFruit=0;
 	}
 	this.numFruit = proposedNewNumFruit;
-	this.fruitCounter.innerHTML = this.numFruit;
 	if(this.numFruit===5){
 		this.paddle.h = defaultPaddleHeight*2;
 	}
@@ -130,8 +144,8 @@ Player.prototype.fireMissile = function(){
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	}
 }
-var playerL = new Player(lPaddle,"pLScore","pLFruit","pLMissiles");
-var playerR = new Player(rPaddle,"pRScore","pRFruit","pRMissiles");
+var playerL = new Player(lPaddle,"pLScore","pLMissiles",pLInventory,pLICtx);
+var playerR = new Player(rPaddle,"pRScore","pRMissiles",pRInventory,pRICtx);
 players.push(playerL,playerR);
 //Balls:
 function Ball(width,tether,player){
@@ -388,6 +402,27 @@ function draw(firstDraw){
 	for (var i = 0; i < missiles.length; i++) {
 		ctx.fillStyle = "#551a8b"; //Set fill colour to purple and...
 		ctx.fillRect(missiles[i].x,missiles[i].y,missiles[i].w,missiles[i].h); //...draw the missile
+	};
+	//Player inventory canvases:
+	for (var i = 0; i < players.length; i++) {
+		var inventoryCanvas = players[i].inventoryDisplayCanvas;
+		var inventoryContext = players[i].inventoryDisplayContext;
+		inventoryContext.clearRect(0,0,inventoryCanvas.width,inventoryCanvas.height);
+		// inventoryContext.fillStyle = "#d3d3d3";
+		// inventoryContext.fillRect(0,0,inventoryCanvas.width,inventoryCanvas.height);
+		var fruitDisplayRadius = inventoryCanvas.width/16;
+		var fruitDisplayCentreX = 3*fruitDisplayRadius;
+		for (var j = 0; j < 5; j++) { //Have to use j here because we are already in another for loop
+			inventoryContext.beginPath();
+			inventoryContext.arc((2+(3*j))*fruitDisplayRadius,2*fruitDisplayRadius,fruitDisplayRadius,0,2*Math.PI,false);
+			inventoryContext.fillStyle = "#00ff00";
+			inventoryContext.strokeStyle = "#00ff00";
+			if(j<players[i].numFruit){
+				inventoryContext.fill();
+			}else{
+				inventoryContext.stroke();
+			}	
+		};		
 	};
 }
 
