@@ -330,7 +330,7 @@ function Crate(xPos,yPos){
 	this.y = yPos;
 	this.w = crateWidth;
 	this.randomNum = Math.random();
-	if(this.randomNum<0.5){
+	if(this.randomNum<0.75){
 		this.goodies = "missile";
 	}else{
 		this.goodies = "paddleStretcher";
