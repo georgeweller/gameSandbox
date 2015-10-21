@@ -95,9 +95,7 @@ Paddle.prototype.setY = function(proposedNewY){
 };
 Paddle.prototype.changeHeight = function(direction){
 	if(direction==="up"){ //If increasing height...
-		if(this.h===0){ //If currently zero...
-			this.h = defaultPaddleHeight/4; //...go to a quater of default.
-		}else if(this.h<defaultPaddleHeight){//Otherwise, if less than default...
+		if(this.h<defaultPaddleHeight){//If less than default...
 			this.h*=2;//...double it.
 		}else if(this.h<=canvas.height-defaultPaddleHeight){
 			this.h += defaultPaddleHeight;
@@ -105,9 +103,7 @@ Paddle.prototype.changeHeight = function(direction){
 	}else if(direction==="down"){
 		if(this.h>defaultPaddleHeight){
 			this.h -= defaultPaddleHeight;
-		}else if(this.h===defaultPaddleHeight/4){
-			this.h=0;
-		}else{
+		}else if(this.h>defaultPaddleHeight/8){
 			this.h/=2;
 		}
 	}
@@ -166,7 +162,7 @@ Player.prototype.useItem = function(){
 	}
 }
 Player.prototype.fireMissile = function(){
-	var missileY = this.paddle.y;
+	var missileY = this.paddle.y+((this.paddle.h-missileHeight)/2);
 	if(this.paddle===lPaddle){
 		var missileX = lPaddle.x+lPaddle.w;
 		var direction = "right";
@@ -176,7 +172,7 @@ Player.prototype.fireMissile = function(){
 	}
 	missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 	if(this.numFruit===5){
-		missileY = this.paddle.y+((this.paddle.h-missileHeight)/2);
+		missileY = this.paddle.y;
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
 		missileY = this.paddle.y+this.paddle.h-missileHeight;
 		missiles.push(new Missile(missileX,missileY,direction,this.paddle,this));
@@ -541,12 +537,16 @@ function draw(firstDraw){
 			inventoryContext.strokeRect(itemDisplayX,itemDisplayY,itemDisplayWidth,itemDisplayWidth);
 			inventoryContext.lineWidth = 2;
 			if(k<players[i].inventory.length){
-				if(players[i].inventory[k]==="missile"){
+				var item = players[i].inventory[k];
+				if(item==="missile"){
 					inventoryContext.fillStyle = "#551a8b";					
 					inventoryContext.fillRect(itemDisplayX+((itemDisplayWidth-missileWidth)/2),itemDisplayY+((itemDisplayWidth-missileHeight)/2),missileWidth,missileHeight);
-				}else if(players[i].inventory[k]==="paddleStretcher"){
+				}else if(item==="paddleStretcher"){
 					inventoryContext.fillStyle = "#000000";					
 					inventoryContext.fillRect(itemDisplayX+(itemDisplayWidth/2)-2,itemDisplayY+(itemDisplayWidth/2)-20,4,40);
+				}else if(item==="barriers"){
+					inventoryContext.strokeStyle = "#63afae";					
+					inventoryContext.strokeRect(itemDisplayX+((itemDisplayWidth-barrierWidth)/2),itemDisplayY+((itemDisplayWidth-barrierWidth)/2),barrierWidth,barrierWidth);	
 				}
 			}
 		};
@@ -608,15 +608,16 @@ function pointScoredBy(scorer){
 	fruit.splice(0,fruit.length);
 	crates.splice(0,crates.length);
 	missiles.splice(0,missiles.length);
+	// barriers.splice(0,barriers.length);
 	var opponent = scorer===playerL ? playerR : playerL;
 	if(opponent.numFruit===5){
 		opponent.changeFruitNumBy(-2);
 	}
-	for (var i = 0; i < paddles.length; i++) {
-		if(paddles[i].numFruit!==5){
-	 		paddles[i].h = defaultPaddleHeight;	
- 		}
-	};
+	// for (var i = 0; i < paddles.length; i++) {
+	// 	if(paddles[i].numFruit!==5){
+	//  		paddles[i].h = defaultPaddleHeight;	
+ // 		}
+	// };
 }
 
 function respondToKey(event){
@@ -705,16 +706,12 @@ function test(){
 function test2(){
 	alert("Second test function called");
 }
-
-playerL.inventory.push("barriers","barriers","barriers");
-playerR.inventory.push("barriers","barriers","barriers");
 /*BUG RECORD*/
 
 /*TO DO LIST*/
 //Make the barriers destroy any fruit or crates that they overlap with
 //Make barriers destroyable by missiles
 //Remove all barriers when a point is scored
-//Add barrier icon to inventory display
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
