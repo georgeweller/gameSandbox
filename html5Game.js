@@ -378,7 +378,7 @@ function Crate(xPos,yPos){
 	this.y = yPos;
 	this.w = crateWidth;
 	this.randomNum = Math.random();
-	if(this.randomNum<0.5){
+	if(this.randomNum<0.6){
 		this.goodies = "missile";
 	}else if(this.randomNum<0.75){
 		this.goodies = "paddleStretcher";
@@ -711,7 +711,6 @@ function test2(){
 /*TO DO LIST*/
 //Make the barriers destroy any fruit or crates that they overlap with
 //Make barriers destroyable by missiles
-//Remove all barriers when a point is scored
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
