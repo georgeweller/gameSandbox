@@ -35,7 +35,7 @@ var inventoryHeight = canvasHeight;
 var paddles = [];
 var defaultPaddleWidth = 15;
 var defaultPaddleHeight = 80;
-var defaultPaddleSpeed = 0.2;
+var defaultPaddleSpeed = 0.3;
 var players = [];
 var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
@@ -378,9 +378,9 @@ function Crate(xPos,yPos){
 	this.y = yPos;
 	this.w = crateWidth;
 	this.randomNum = Math.random();
-	if(this.randomNum<0.6){
+	if(this.randomNum<0.5){
 		this.goodies = "missile";
-	}else if(this.randomNum<0.75){
+	}else if(this.randomNum<0.8){
 		this.goodies = "paddleStretcher";
 	}else{
 		this.goodies = "barriers";
@@ -730,3 +730,5 @@ function test2(){
 //Full/partial barrier behind paddle
 //Paddle can move in two dimensions
 //Shield?
+//Bomb that moves slowly across screen
+//Instantly reverse ball direction
