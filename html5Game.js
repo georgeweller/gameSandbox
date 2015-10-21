@@ -193,9 +193,13 @@ Player.prototype.placeBarriers = function(){
 	if(this.numFruit===5){
 		numBarriers = 6;
 	}
-	var newBarriersX = 300;
-	var newBarriersY = 200; 
-	for (var i = 0; i < numBarriers-1; i++) {
+	if(ball.vLeft<0){ //If ball going right...
+		var newBarriersX = ball.x-(ball.w+barrierWidth);
+	}else{ //If ball going left...
+		var newBarriersX = ball.x+(2*ball.w);
+	}
+	var newBarriersY = ball.y+(ball.w/2)-(0.5*numBarriers*barrierWidth); 
+	for (var i = 0; i < numBarriers; i++) {
 		barriers.push(new Barrier(newBarriersX,newBarriersY+(i*barrierWidth)));
 	};
 }
@@ -297,15 +301,28 @@ Ball.prototype.setPos = function(proposedNewX,proposedNewY){ //Sets new position
 		var ballCentreY = ball.y + (ball.w/2);
 		for (var i = 0; i < barriers.length; i++) {
 			var barrier = barriers[i];
-			if(thereIsLineCircleContact(barrier.x+barrier.w,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)//Right side of barrier
-				|| thereIsLineCircleContact(barrier.x,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)){//Left side of barrier
+			var removeBarrier = false;
+			if(thereIsLineCircleContact(barrier.x+barrier.w,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)){//Right side of barrier
+				if(ball.vLeft>0){
 					ball.changeXDirection();
-					barriers.splice(i,1);
-			}else if(thereIsLineCircleContact(barrier.y,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)//Top side of barrier
-				|| thereIsLineCircleContact(barrier.y+barrier.w,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)){//Bottom side of barrier
-					ball.vUp*=-1;
-					barriers.splice(i,1);
+				}
+				removeBarrier = true;
+			}else if(thereIsLineCircleContact(barrier.x,barrier.y,barrier.y+barrier.w,ballCentreX,ballCentreY,ball.w)){//Left side of barrier
+				if(ball.vLeft<0){
+					ball.changeXDirection();
+				}
+				removeBarrier = true;
+			}
+			if(ball.vUp<=0 && thereIsLineCircleContact(barrier.y,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)){//Top side of barrier
+				ball.vUp*=-1;
+				removeBarrier = true;
+			}else if(ball.vUp>=0 && thereIsLineCircleContact(barrier.y+barrier.w,barrier.x,barrier.x+barrier.w,ballCentreY,ballCentreX,ball.w)){//Bottom side of barrier
+				ball.vUp*=-1;
+				removeBarrier = true;
 			}	
+			if(removeBarrier){
+				barriers.splice(i,1);
+			}
 		};
 	}
 	function thereIsLineCircleContact(lineDistanceFromAxis,lineStart,lineStop,circleCentreCoordinate1,circleCentreCoordinate2,circleDiameter){
@@ -379,8 +396,6 @@ function Barrier(xPos,yPos){
 	this.y = yPos;
 	this.w = barrierWidth;
 }
-var newBarrier = new Barrier(100,150);
-barriers.push(newBarrier);
 /*MISSILES*/
 function Missile(xPos,yPos,direction,paddleFiredFrom,playerFiredBy){
 	this.itemType = "missile";
@@ -493,8 +508,8 @@ function draw(firstDraw){
 		ctx.fillRect(missiles[i].x,missiles[i].y,missiles[i].w,missiles[i].h); //...draw the missile
 	};
 	for (var i = 0; i < barriers.length; i++) {
-		ctx.fillStyle = "#63afae"; //Set fill colour to and...
-		ctx.fillRect(barriers[i].x,barriers[i].y,barriers[i].w,barriers[i].w); //...draw the barrier
+		ctx.strokeStyle = "#63afae"; //Set fill colour to and...
+		ctx.strokeRect(barriers[i].x,barriers[i].y,barriers[i].w,barriers[i].w); //...draw the barrier
 	};
 	//Player inventory canvases:
 	for (var i = 0; i < players.length; i++) {
@@ -517,7 +532,7 @@ function draw(firstDraw){
 		};
 		var itemDisplayWidth = (inventoryCanvas.height - (3*fruitDisplayRadius))/4;
 		var itemDisplayX = (inventoryCanvas.width - itemDisplayWidth)/2;
-		for (var k = 0; k < 3; k++) {
+		for (var k = 0; k < players[i].inventory.length; k++) {
 			inventoryContext.strokeStyle = "#ae6a31";
 			if(k === players[i].inventorySelectionNum && players[i].inventory.length>0){
 				inventoryContext.lineWidth = 5;
@@ -691,14 +706,15 @@ function test2(){
 	alert("Second test function called");
 }
 
+playerL.inventory.push("barriers","barriers","barriers");
+playerR.inventory.push("barriers","barriers","barriers");
 /*BUG RECORD*/
 
 /*TO DO LIST*/
-//Make placeBarrier() method place the barriers at a location that depends on:
-////The current ball location
-////The player that placed them
-////Whether there is anything in the proposed location
+//Make the barriers destroy any fruit or crates that they overlap with
 //Make barriers destroyable by missiles
+//Remove all barriers when a point is scored
+//Add barrier icon to inventory display
 //Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
 //Add winning score with a winner announcement (maybe players can set winning score at start of game)
 //Make player names editable (with a Player.name property to record them)
