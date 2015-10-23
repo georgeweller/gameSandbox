@@ -39,15 +39,15 @@ var defaultPaddleSpeed = 0.3;
 var players = [];
 var ballStartingSpeed = 0.4;
 var eBallWalls = 0.8; //Coefficient of resistution between ball and walls
-var fruitWidth = 20;
+var fruitWidth = 30;
 var avFruitSpawnTime = 3000;
 var maxFruit = 4;
 var fruit = [];//An array to keep track of all the fruit on the screen
-var crateWidth = 20;
-var avCrateSpawnTime = 3000;
-var maxCrates = 5;
+var crateWidth = 30;
+var avCrateSpawnTime = 2000;
+var maxCrates = 10;
 var crates = [];//An array to keep track of all the crates on the screen
-var barrierWidth = 20;
+var barrierWidth = 30;
 var barriers = [];
 var missileWidth = 50;
 var missileHeight = 10;
@@ -97,7 +97,7 @@ Paddle.prototype.changeHeight = function(direction){
 	if(direction==="up"){ //If increasing height...
 		if(this.h<defaultPaddleHeight){//If less than default...
 			this.h*=2;//...double it.
-		}else if(this.h<=canvas.height-defaultPaddleHeight){
+		}else if(this.h<=canvas.height-(3*defaultPaddleHeight)){
 			this.h += defaultPaddleHeight;
 		}
 	}else if(direction==="down"){
@@ -185,16 +185,28 @@ Player.prototype.strechPaddle = function(){
 	}
 }
 Player.prototype.placeBarriers = function(){
-	var numBarriers = 4;
+	var numBarriers = 3;
 	if(this.numFruit===5){
 		numBarriers = 6;
 	}
-	if(ball.vLeft<0){ //If ball going right...
-		var newBarriersX = ball.x-(ball.w+barrierWidth);
-	}else{ //If ball going left...
-		var newBarriersX = ball.x+(2*ball.w);
+	if(this === playerL){
+		var newBarriersX = this.paddle.x - barrierWidth;
+	}else if(this === playerR){
+		var newBarriersX = this.paddle.x + this.paddle.w;
 	}
-	var newBarriersY = ball.y+(ball.w/2)-(0.5*numBarriers*barrierWidth); 
+	var newBarriersY = this.paddle.y + (this.paddle.h/2) - (0.5*numBarriers*barrierWidth);
+	if(newBarriersY<0){
+		newBarriersY = 0;
+	}
+	if(newBarriersY>(canvas.height-(numBarriers*barrierWidth))){
+		newBarriersY = canvas.height-(numBarriers*barrierWidth);
+	}
+	// if(ball.vLeft<0){ //If ball going right...
+	// 	var newBarriersX = ball.x-(ball.w+barrierWidth);
+	// }else{ //If ball going left...
+	// 	var newBarriersX = ball.x+(2*ball.w);
+	// }
+	// var newBarriersY = ball.y+(ball.w/2)-(0.5*numBarriers*barrierWidth); 
 	for (var i = 0; i < numBarriers; i++) {
 		barriers.push(new Barrier(newBarriersX,newBarriersY+(i*barrierWidth)));
 	};
@@ -208,7 +220,7 @@ function Ball(width,tether,player){
 	this.x = 0;
 	this.y = 0;
 	this.vLeft = -ballStartingSpeed;
-	this.vUp = 0;
+	this.vUp = 0.03;
 	this.tetheredTo = tether;
 	this.owner = player;
 	if(this.tetheredTo != null){
@@ -378,9 +390,9 @@ function Crate(xPos,yPos){
 	this.y = yPos;
 	this.w = crateWidth;
 	this.randomNum = Math.random();
-	if(this.randomNum<0.5){
+	if(this.randomNum<0.45){
 		this.goodies = "missile";
-	}else if(this.randomNum<0.8){
+	}else if(this.randomNum<0.85){
 		this.goodies = "paddleStretcher";
 	}else{
 		this.goodies = "barriers";
@@ -706,29 +718,40 @@ function test(){
 function test2(){
 	alert("Second test function called");
 }
-/*BUG RECORD*/
+/*TEMPORARY CODE*/
+playerL.inventory.push("barriers","barriers","barriers");
+playerR.inventory.push("barriers","barriers","barriers");
 
-/*TO DO LIST*/
-//Make the barriers destroy any fruit or crates that they overlap with
-//Make barriers destroyable by missiles
-//Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
-//Add winning score with a winner announcement (maybe players can set winning score at start of game)
-//Make player names editable (with a Player.name property to record them)
+/*BUG RECORD
+*/
 
-/*WEAPON/ITEM IDEAS*/
-//[Controlled by fruit number] Speed up own paddle
-//[Controlled by fruit number] Slow down oponent's paddle
-//Barrier (that breaks when hit)
-//One way barrier (could be suped up version of barrier)
-//[DONE] Missile
-//Telekinesis (control ball while it moves through the air)
-//Reverse ball direction
-//Reinforced/larger ball that can break through barriers
-//[DONE] Larger paddle
-//Two paddles (maybe one slightly forward and they mirror each other's movement)
-//Multiball
-//Full/partial barrier behind paddle
-//Paddle can move in two dimensions
-//Shield?
-//Bomb that moves slowly across screen
-//Instantly reverse ball direction
+/*TO DO LIST
+Make barriers only appear behind paddles
+Make barriers destroyable by missiles
+Add direction reverse item
+Make it so that you can't use a paddle stretcher if it won't do anything
+Make the barriers destroy any fruit or crates that they overlap with
+Make it so that a crate can't go where there is already a crate
+Give crates and fruit a lifespan so they don't stay on the canvas forever if not hit
+Add winning score with a winner announcement (maybe players can set winning score at start of game)
+Make player names editable (with a Player.name property to record them)
+*/
+
+/*WEAPON/ITEM IDEAS
+[Controlled by fruit number] Speed up own paddle
+[Controlled by fruit number] Slow down oponent's paddle
+Barrier (that breaks when hit)
+One way barrier (could be suped up version of barrier)
+[DONE] Missile
+Telekinesis (control ball while it moves through the air)
+Reverse ball direction
+Reinforced/larger ball that can break through barriers
+[DONE] Larger paddle
+Two paddles (maybe one slightly forward and they mirror each other's movement)
+Multiball
+Full/partial barrier behind paddle
+Paddle can move in two dimensions
+Shield?
+Bomb that moves slowly across screen
+Instantly reverse ball direction
+*/
